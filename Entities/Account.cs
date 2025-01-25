@@ -17,15 +17,15 @@ namespace Entities
 
         public string Title { get; set; }
 
-        public string Language { get; set; }
+        public string? Language { get; set; }
 
-        public string ProfileImageUrl { get; set; }
+        public string? ProfileImageUrl { get; set; }
 
-        public string ProfileImageName { get; set; }
+        public string? ProfileImageName { get; set; }
 
-        public string CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
 
-        public string UpdatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
 
         public DateTime? CreatedAt { get; set; }
 

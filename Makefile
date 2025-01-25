@@ -26,6 +26,8 @@ dropdb:
 	docker exec -u root -it planwise-container bash -c "apt-get update && apt-get install -y mssql-tools unixodbc-dev && /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P P@ssw0rd123 -Q \"ALTER DATABASE principalsdb SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE principalsdb;\" -N -C"
 
 
+# make new_migrations migrationsName=AddBaseTableForIdentity
+
 new_migrations:
 	cd PlanWiseBackend && \
 	dotnet ef --project ../Entities migrations add $(migrationsName) --context PlanWiseDbContext

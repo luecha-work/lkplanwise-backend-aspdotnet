@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Entities.Configuration;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -29,17 +30,20 @@ namespace Entities
         public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<Roles> Role { get; set; }
         public virtual DbSet<AccountRoles> AccountsRole { get; set; }
+        public virtual DbSet<BlockBruteForce> BlockBruteforces { get; set; }
+        public virtual DbSet<PlanWiseSession> PlanWiseSession { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            //modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            //modelBuilder.ApplyConfiguration(new AccountsConfiguration());
             //modelBuilder.HasDefaultSchema("pims");
-            //modelBuilder.HasPostgresExtension("uuid-ossp");
 
             #region CustomEntitysIdentity
             modelBuilder.Entity<Account>(entity =>
             {
-                entity.ToTable("accounts");
+                entity.ToTable("Accounts");
 
                 entity.HasIndex(e => e.NormalizedEmail, "EmailIndex");
 
@@ -83,7 +87,7 @@ namespace Entities
 
             modelBuilder.Entity<Roles>(entity =>
             {
-                entity.ToTable("roles");
+                entity.ToTable("Roles");
 
                 entity.HasIndex(e => e.NormalizedName, "RoleNameIndex").IsUnique();
 
@@ -109,7 +113,7 @@ namespace Entities
 
             modelBuilder.Entity<AccountRoles>(entity =>
             {
-                entity.ToTable("accounts_role");
+                entity.ToTable("AccountsRole");
 
                 entity.HasIndex(e => e.RoleId, "IX_Accounts_Roles_role_id");
                 entity.Property(e => e.UserId).HasColumnName("user_id");
@@ -130,11 +134,77 @@ namespace Entities
                     .HasForeignKey(d => d.UserId);
             });
 
-            modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("account_claim");
-            modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("role_claim");
-            modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("account_login");
-            modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("account_token");
+            modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("AccountClaim");
+            modelBuilder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaim");
+            modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("AccountLogin");
+            modelBuilder.Entity<IdentityUserToken<Guid>>().ToTable("AccountToken");
             #endregion
+
+            modelBuilder.Entity<PlanWiseSession>(entity =>
+            {
+                entity.HasKey(e => e.SessionId).HasName("cms_session_pk");
+                entity.ToTable("PlanWiseSession");
+
+                entity
+                    .Property(e => e.SessionId)
+                    .HasDefaultValueSql("NEWID()")
+                    .HasColumnName("session_id");
+                entity.Property(e => e.AccountId).HasColumnName("account_id");
+                entity.Property(e => e.Browser).HasMaxLength(50).HasColumnName("browser");
+                entity.Property(e => e.ExpirationTime).HasColumnName("expiration_time");
+                entity.Property(e => e.IssuedTime).HasColumnName("issued_time");
+                entity.Property(e => e.LoginAt).HasColumnName("login_at");
+                entity.Property(e => e.LoginIp).HasMaxLength(50).HasColumnName("login_ip");
+                entity.Property(e => e.Os).HasMaxLength(50).HasColumnName("os");
+                entity.Property(e => e.Platform).HasMaxLength(50).HasColumnName("platform");
+                entity.Property(e => e.RefreshTokenAt).HasColumnName("refresh_token_at");
+                entity
+                    .Property(e => e.SessionStatusEnum)
+                    .HasDefaultValueSql("'A'")
+                    .HasComment(
+                        "B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว"
+                    )
+                    .HasColumnType("character varying")
+                    .HasColumnName("session_status");
+                entity
+                    .Property(e => e.Token)
+                    .HasColumnType("character varying")
+                    .HasColumnName("token");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+                entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+                entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+                entity.Property(e => e.UpdatedBy).HasColumnName("updated_By");
+            });
+
+            modelBuilder.Entity<BlockBruteForce>(entity =>
+            {
+                entity.ToTable("Block_BruteForce");
+
+                entity.HasKey(e => e.BlockForceId).HasName("block_bruteforce_pk");
+
+                entity
+                    .Property(e => e.BlockForceId)
+                    .HasDefaultValueSql("NEWID()") // Changed from uuid_generate_v4() to NEWID()
+                    .HasColumnName("blockforce_id");
+                entity.Property(e => e.Count).HasDefaultValue(0).HasColumnName("count");
+                entity.Property(e => e.LockedTime).HasColumnName("locked_time");
+                entity
+                    .Property(e => e.Status)
+                    .HasDefaultValueSql("'A'")
+                    .HasComment("L (Locked): ถูกล็อก\r\nU (UnLock): ไม่ล็อก")
+                    .HasColumnType("character varying")
+                    .HasColumnName("status");
+                entity.Property(e => e.UnLockTime).HasColumnName("unlock_time");
+                entity
+                    .Property(e => e.Email)
+                    .HasColumnType("character varying")
+                    .HasColumnName("email");
+                entity.Property(e => e.UpdatedAt).HasColumnName("update_at");
+                entity.Property(e => e.UpdatedBy).HasColumnName("update_by");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+                entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            });
+
         }
     }
 

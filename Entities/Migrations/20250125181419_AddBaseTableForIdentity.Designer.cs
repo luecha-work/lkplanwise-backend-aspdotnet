@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entities.Migrations
 {
     [DbContext(typeof(PlanWiseDbContext))]
-    [Migration("20250125142427_AddBaseTableForIdentity")]
+    [Migration("20250125181419_AddBaseTableForIdentity")]
     partial class AddBaseTableForIdentity
     {
         /// <inheritdoc />
@@ -49,7 +49,6 @@ namespace Entities.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("created_by");
@@ -66,7 +65,6 @@ namespace Entities.Migrations
                         .HasColumnName("firstname");
 
                     b.Property<string>("Language")
-                        .IsRequired()
                         .HasColumnType("character varying")
                         .HasColumnName("language");
 
@@ -94,12 +92,10 @@ namespace Entities.Migrations
                         .HasColumnName("phonenumber");
 
                     b.Property<string>("ProfileImageName")
-                        .IsRequired()
                         .HasColumnType("character varying")
                         .HasColumnName("profile_image_name");
 
                     b.Property<string>("ProfileImageUrl")
-                        .IsRequired()
                         .HasColumnType("character varying")
                         .HasColumnName("profile_image_url");
 
@@ -116,7 +112,6 @@ namespace Entities.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("updated_by");
@@ -128,7 +123,7 @@ namespace Entities.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("accounts", (string)null);
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("Entities.AccountRoles", b =>
@@ -163,7 +158,147 @@ namespace Entities.Migrations
 
                     b.HasIndex(new[] { "RoleId" }, "IX_Accounts_Roles_role_id");
 
-                    b.ToTable("accounts_role", (string)null);
+                    b.ToTable("AccountsRole", (string)null);
+                });
+
+            modelBuilder.Entity("Entities.BlockBruteForce", b =>
+                {
+                    b.Property<Guid>("BlockForceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("blockforce_id")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<int>("Count")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0)
+                        .HasColumnName("count");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("character varying")
+                        .HasColumnName("email");
+
+                    b.Property<DateTime?>("LockedTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("locked_time");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("character varying")
+                        .HasColumnName("status")
+                        .HasDefaultValueSql("'A'")
+                        .HasComment("L (Locked): ถูกล็อก\r\nU (UnLock): ไม่ล็อก");
+
+                    b.Property<DateTime?>("UnLockTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("unlock_time");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("update_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("update_by");
+
+                    b.HasKey("BlockForceId")
+                        .HasName("block_bruteforce_pk");
+
+                    b.ToTable("Block_BruteForce", (string)null);
+                });
+
+            modelBuilder.Entity("Entities.PlanWiseSession", b =>
+                {
+                    b.Property<Guid>("SessionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("session_id")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("account_id");
+
+                    b.Property<string>("Browser")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("browser");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime>("ExpirationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("expiration_time");
+
+                    b.Property<DateTime>("IssuedTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("issued_time");
+
+                    b.Property<DateTime>("LoginAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("login_at");
+
+                    b.Property<string>("LoginIp")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("login_ip");
+
+                    b.Property<string>("Os")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("os");
+
+                    b.Property<string>("Platform")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("platform");
+
+                    b.Property<DateTime?>("RefreshTokenAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("refresh_token_at");
+
+                    b.Property<string>("SessionStatusEnum")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("character varying")
+                        .HasColumnName("session_status")
+                        .HasDefaultValueSql("'A'")
+                        .HasComment("B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("character varying")
+                        .HasColumnName("token");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("updated_By");
+
+                    b.HasKey("SessionId")
+                        .HasName("cms_session_pk");
+
+                    b.ToTable("PlanWiseSession", (string)null);
                 });
 
             modelBuilder.Entity("Entities.Roles", b =>
@@ -186,7 +321,6 @@ namespace Entities.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("created_by");
 
@@ -213,7 +347,6 @@ namespace Entities.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("updated_by");
 
@@ -228,7 +361,7 @@ namespace Entities.Migrations
                         .IsUnique()
                         .HasFilter("[normalized_name] IS NOT NULL");
 
-                    b.ToTable("roles", (string)null);
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -252,7 +385,7 @@ namespace Entities.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("role_claim", (string)null);
+                    b.ToTable("RoleClaim", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
@@ -276,7 +409,7 @@ namespace Entities.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("account_claim", (string)null);
+                    b.ToTable("AccountClaim", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
@@ -297,7 +430,7 @@ namespace Entities.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("account_login", (string)null);
+                    b.ToTable("AccountLogin", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
@@ -316,7 +449,7 @@ namespace Entities.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("account_token", (string)null);
+                    b.ToTable("AccountToken", (string)null);
                 });
 
             modelBuilder.Entity("Entities.AccountRoles", b =>

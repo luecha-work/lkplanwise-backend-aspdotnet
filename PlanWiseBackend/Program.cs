@@ -28,9 +28,6 @@ builder.Services.AddDbContext<PlanWiseDbContext>(
 );
 
 // Add services to the container.
-
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 builder.Services.ConfigureSwagger();
 builder.Host.ConfigureSerilog();
 builder.Services.ConfigureCors(builder.Configuration);
@@ -54,6 +51,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
+
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
 
 //TODO: Add Scoped
 builder.Services.AddScoped(

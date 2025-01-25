@@ -12,7 +12,7 @@ namespace Entities.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "accounts",
+                name: "Accounts",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -20,11 +20,11 @@ namespace Entities.Migrations
                     lastname = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    language = table.Column<string>(type: "character varying", nullable: false),
-                    profile_image_url = table.Column<string>(type: "character varying", nullable: false),
-                    profile_image_name = table.Column<string>(type: "character varying", nullable: false),
-                    created_by = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    updated_by = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    language = table.Column<string>(type: "character varying", nullable: true),
+                    profile_image_url = table.Column<string>(type: "character varying", nullable: true),
+                    profile_image_name = table.Column<string>(type: "character varying", nullable: true),
+                    created_by = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     username = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
@@ -39,17 +39,63 @@ namespace Entities.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_accounts", x => x.Id);
+                    table.PrimaryKey("PK_Accounts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "roles",
+                name: "Block_BruteForce",
+                columns: table => new
+                {
+                    blockforce_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    email = table.Column<string>(type: "character varying", nullable: false),
+                    count = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    status = table.Column<string>(type: "character varying", nullable: false, defaultValueSql: "'A'", comment: "L (Locked): ถูกล็อก\r\nU (UnLock): ไม่ล็อก"),
+                    locked_time = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    unlock_time = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    update_by = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("block_bruteforce_pk", x => x.blockforce_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlanWiseSession",
+                columns: table => new
+                {
+                    session_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    account_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    login_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    platform = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    os = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    browser = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    login_ip = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    issued_time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    expiration_time = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    session_status = table.Column<string>(type: "character varying", nullable: false, defaultValueSql: "'A'", comment: "B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว"),
+                    token = table.Column<string>(type: "character varying", nullable: true),
+                    refresh_token_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    updated_By = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("cms_session_pk", x => x.session_id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     role_code = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false, defaultValueSql: "''"),
-                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     active = table.Column<bool>(type: "bit", nullable: false),
@@ -59,11 +105,11 @@ namespace Entities.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_roles", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "account_claim",
+                name: "AccountClaim",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -74,17 +120,17 @@ namespace Entities.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_account_claim", x => x.Id);
+                    table.PrimaryKey("PK_AccountClaim", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_account_claim_accounts_UserId",
+                        name: "FK_AccountClaim_Accounts_UserId",
                         column: x => x.UserId,
-                        principalTable: "accounts",
+                        principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "account_login",
+                name: "AccountLogin",
                 columns: table => new
                 {
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -94,17 +140,17 @@ namespace Entities.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_account_login", x => new { x.LoginProvider, x.ProviderKey });
+                    table.PrimaryKey("PK_AccountLogin", x => new { x.LoginProvider, x.ProviderKey });
                     table.ForeignKey(
-                        name: "FK_account_login_accounts_UserId",
+                        name: "FK_AccountLogin_Accounts_UserId",
                         column: x => x.UserId,
-                        principalTable: "accounts",
+                        principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "account_token",
+                name: "AccountToken",
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -114,17 +160,17 @@ namespace Entities.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_account_token", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.PrimaryKey("PK_AccountToken", x => new { x.UserId, x.LoginProvider, x.Name });
                     table.ForeignKey(
-                        name: "FK_account_token_accounts_UserId",
+                        name: "FK_AccountToken_Accounts_UserId",
                         column: x => x.UserId,
-                        principalTable: "accounts",
+                        principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "accounts_role",
+                name: "AccountsRole",
                 columns: table => new
                 {
                     user_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -136,23 +182,23 @@ namespace Entities.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_accounts_role", x => new { x.user_id, x.role_id });
+                    table.PrimaryKey("PK_AccountsRole", x => new { x.user_id, x.role_id });
                     table.ForeignKey(
-                        name: "FK_accounts_role_accounts_user_id",
+                        name: "FK_AccountsRole_Accounts_user_id",
                         column: x => x.user_id,
-                        principalTable: "accounts",
+                        principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_accounts_role_roles_role_id",
+                        name: "FK_AccountsRole_Roles_role_id",
                         column: x => x.role_id,
-                        principalTable: "roles",
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "role_claim",
+                name: "RoleClaim",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -163,38 +209,38 @@ namespace Entities.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_role_claim", x => x.Id);
+                    table.PrimaryKey("PK_RoleClaim", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_role_claim_roles_RoleId",
+                        name: "FK_RoleClaim_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalTable: "roles",
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_account_claim_UserId",
-                table: "account_claim",
+                name: "IX_AccountClaim_UserId",
+                table: "AccountClaim",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_account_login_UserId",
-                table: "account_login",
+                name: "IX_AccountLogin_UserId",
+                table: "AccountLogin",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_Roles_role_id",
-                table: "accounts_role",
+                table: "AccountsRole",
                 column: "role_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_role_claim_RoleId",
-                table: "role_claim",
+                name: "IX_RoleClaim_RoleId",
+                table: "RoleClaim",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
-                table: "roles",
+                table: "Roles",
                 column: "normalized_name",
                 unique: true,
                 filter: "[normalized_name] IS NOT NULL");
@@ -204,25 +250,31 @@ namespace Entities.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "account_claim");
+                name: "AccountClaim");
 
             migrationBuilder.DropTable(
-                name: "account_login");
+                name: "AccountLogin");
 
             migrationBuilder.DropTable(
-                name: "accounts_role");
+                name: "AccountsRole");
 
             migrationBuilder.DropTable(
-                name: "account_token");
+                name: "AccountToken");
 
             migrationBuilder.DropTable(
-                name: "role_claim");
+                name: "Block_BruteForce");
 
             migrationBuilder.DropTable(
-                name: "accounts");
+                name: "PlanWiseSession");
 
             migrationBuilder.DropTable(
-                name: "roles");
+                name: "RoleClaim");
+
+            migrationBuilder.DropTable(
+                name: "Accounts");
+
+            migrationBuilder.DropTable(
+                name: "Roles");
         }
     }
 }
