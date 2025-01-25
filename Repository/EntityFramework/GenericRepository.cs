@@ -17,7 +17,7 @@ namespace Repository.EntityFramework
 
         public List<T> FindAll() => _context.Set<T>().ToList();
         public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression) => _context.Set<T>().Where(expression);
-        public T FindOneById(int id) => _context.Set<T>().Find(id);
+        public T FindOneById(Guid id) => _context.Set<T>().Find(id);
         public void Create(T entity) => _context.Set<T>().Add(entity);
         public async Task CreateAsync(T entity)
         {
@@ -30,7 +30,7 @@ namespace Repository.EntityFramework
             _context.Set<T>().RemoveRange(entities);
             _context.SaveChanges();
         }
-        public async Task<bool> ExistsAsync(int id)
+        public async Task<bool> ExistsAsync(Guid id)
         {
             var entity = await _context.Set<T>().FindAsync(id);
             return entity != null;

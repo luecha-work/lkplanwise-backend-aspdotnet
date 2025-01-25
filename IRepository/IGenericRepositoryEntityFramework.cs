@@ -9,7 +9,8 @@ namespace IRepository
 {
     public interface IGenericRepositoryEntityFramework<T>
         where T : class
-    {//Task<PagedList<T>> FindPagedResultAsync(
+    {
+        //Task<PagedList<T>> FindPagedResultAsync(
         //    BaseQueryParameters queryParameters,
         //    Expression<Func<T, bool>> filterCondition = null
         //);
@@ -17,10 +18,10 @@ namespace IRepository
         Task CreateAsync(T entity);
         void Delete(T entity);
         void DeleteList(List<T> entities);
-        Task<bool> ExistsAsync(int id);
+        Task<bool> ExistsAsync(Guid id);
         List<T> FindAll();
         IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression);
-        T FindOneById(int id);
+        T FindOneById(Guid id);
         void Update(T entity);
         Task UpdateAsync(T entity);
         void UpdateList(List<T> entities);
