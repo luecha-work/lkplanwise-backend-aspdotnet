@@ -8,5 +8,6 @@ namespace IService
 {
     public interface IServiceManager
     {
+        IAuthenticationService AuthenticationService { get; }
     }
 }

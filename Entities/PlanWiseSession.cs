@@ -23,7 +23,7 @@ namespace Entities
         /// A (Active): Session กำลังใช้งานอยู่
         /// E (Expired): Session หมดอายุแล้ว
         /// </summary>
-        public string SessionStatusEnum { get; set; } = null!;
+        public string SessionStatus { get; set; } = null!;
         public string? Token { get; set; }
         public DateTime? RefreshTokenAt { get; set; }
         public DateTime? CreatedAt { get; set; }

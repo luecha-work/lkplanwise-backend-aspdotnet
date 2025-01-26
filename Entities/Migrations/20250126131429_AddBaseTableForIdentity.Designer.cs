@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entities.Migrations
 {
     [DbContext(typeof(PlanWiseDbContext))]
-    [Migration("20250125181419_AddBaseTableForIdentity")]
+    [Migration("20250126131429_AddBaseTableForIdentity")]
     partial class AddBaseTableForIdentity
     {
         /// <inheritdoc />
@@ -29,7 +29,8 @@ namespace Entities.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int")
@@ -58,6 +59,10 @@ namespace Entities.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("email");
 
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit")
+                        .HasColumnName("email_confirmed");
+
                     b.Property<string>("Firstname")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -65,7 +70,9 @@ namespace Entities.Migrations
                         .HasColumnName("firstname");
 
                     b.Property<string>("Language")
-                        .HasColumnType("character varying")
+                        .HasMaxLength(10)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(10)")
                         .HasColumnName("language");
 
                     b.Property<string>("Lastname")
@@ -82,6 +89,16 @@ namespace Entities.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasColumnName("lockout_end");
 
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("normalized_email");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)")
+                        .HasColumnName("normalized_userName");
+
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("password_hash");
@@ -91,12 +108,20 @@ namespace Entities.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasColumnName("phonenumber");
 
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit")
+                        .HasColumnName("phonenumber_confirmed");
+
                     b.Property<string>("ProfileImageName")
-                        .HasColumnType("character varying")
+                        .HasMaxLength(1)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(1)")
                         .HasColumnName("profile_image_name");
 
                     b.Property<string>("ProfileImageUrl")
-                        .HasColumnType("character varying")
+                        .HasMaxLength(1)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(1)")
                         .HasColumnName("profile_image_url");
 
                     b.Property<string>("SecurityStamp")
@@ -106,6 +131,10 @@ namespace Entities.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit")
+                        .HasColumnName("twofactorEnabled");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -122,6 +151,14 @@ namespace Entities.Migrations
                         .HasColumnName("username");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[normalized_userName] IS NOT NULL");
 
                     b.ToTable("Accounts", (string)null);
                 });
@@ -167,12 +204,10 @@ namespace Entities.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("blockforce_id")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasDefaultValueSql("(newid())");
 
                     b.Property<int>("Count")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
                         .HasColumnName("count");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -185,7 +220,9 @@ namespace Entities.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("character varying")
+                        .HasMaxLength(1)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(1)")
                         .HasColumnName("email");
 
                     b.Property<DateTime?>("LockedTime")
@@ -195,9 +232,11 @@ namespace Entities.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("character varying")
+                        .HasMaxLength(1)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(1)")
+                        .HasDefaultValue("A")
                         .HasColumnName("status")
-                        .HasDefaultValueSql("'A'")
                         .HasComment("L (Locked): ถูกล็อก\r\nU (UnLock): ไม่ล็อก");
 
                     b.Property<DateTime?>("UnLockTime")
@@ -224,7 +263,7 @@ namespace Entities.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("session_id")
-                        .HasDefaultValueSql("NEWID()");
+                        .HasDefaultValueSql("(newid())");
 
                     b.Property<Guid>("AccountId")
                         .HasColumnType("uniqueidentifier")
@@ -275,16 +314,20 @@ namespace Entities.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("refresh_token_at");
 
-                    b.Property<string>("SessionStatusEnum")
+                    b.Property<string>("SessionStatus")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("character varying")
+                        .HasMaxLength(1)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(1)")
+                        .HasDefaultValue("A")
                         .HasColumnName("session_status")
-                        .HasDefaultValueSql("'A'")
                         .HasComment("B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว");
 
                     b.Property<string>("Token")
-                        .HasColumnType("character varying")
+                        .HasMaxLength(1)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(1)")
                         .HasColumnName("token");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -305,7 +348,8 @@ namespace Entities.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit")
@@ -461,7 +505,7 @@ namespace Entities.Migrations
                         .IsRequired();
 
                     b.HasOne("Entities.Account", "Account")
-                        .WithMany("AccountsRole")
+                        .WithMany("AccountRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -509,7 +553,7 @@ namespace Entities.Migrations
 
             modelBuilder.Entity("Entities.Account", b =>
                 {
-                    b.Navigation("AccountsRole");
+                    b.Navigation("AccountRoles");
                 });
 
             modelBuilder.Entity("Entities.Roles", b =>

@@ -33,6 +33,13 @@ namespace Repository.EntityFramework
             return result;
         }
 
+        public async Task<IEnumerable<IdentityError>> CreateAccountAsync(Account account, string password)
+        {
+            var result = await _userManager.CreateAsync(account, password);
+
+            return result.Errors;
+        }
+
         public async Task<Account?> FindAccountByAccountIdAsync(Guid AccountId)
         {
             var account = await _userManager.FindByIdAsync(AccountId.ToString());

@@ -29,18 +29,19 @@ namespace PlanWiseBackend.Middleware
                 //IAuthServiceManager _authServiceManager =
                 //    context.RequestServices.GetRequiredService<IAuthServiceManager>();
 
-                var ipAddress = context.Connection.RemoteIpAddress.ToString();
-                var controller = context.GetRouteValue("controller").ToString().ToUpper();
-                var methodName = context.GetRouteValue("action").ToString().ToUpper() ?? string.Empty;
+                string? ipAddress = context.Connection.RemoteIpAddress.ToString();
+                string? controller = context.GetRouteValue("controller").ToString().ToUpper();
+                string? methodName = context.GetRouteValue("action").ToString().ToUpper() ?? string.Empty;
 
                 if (
                     controller != "AUTHENTICATION"
                     && methodName != "LOGINLOCAL"
                     && methodName != "REFRESHTOKEN"
                     && methodName != "VERIFYACCESSTOKEN"
+                    && methodName != "HEALTHCHECH"
                 )
                 {
-                    string authorizationHeader = context.Request.Headers.Authorization;
+                    string? authorizationHeader = context.Request.Headers.Authorization;
                     if (
                         !string.IsNullOrEmpty(authorizationHeader)
                         && authorizationHeader.StartsWith("Bearer ")
@@ -59,10 +60,8 @@ namespace PlanWiseBackend.Middleware
 
                         if (isVerifyJwtToken)
                         {
-                            string sessionId = JWTHelper.GetAxonsCmsSessionIdFromToken(token);
-
-                            int accountId = JWTHelper.GetAccoutIdFromToken(token);
-
+                            string sessionId = JWTHelper.GetSessionIdFromToken(token);
+                            string accountId = JWTHelper.GetAccoutIdFromToken(token);
                             Guid guidSessionId = Guid.Parse(sessionId);
 
                             //bool checkedSession =

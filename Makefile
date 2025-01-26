@@ -2,6 +2,9 @@ DB_URL=mssql://sa:secret@localhost:1433/principalsdb
 OUTPUT_FOLDER=Models
 PROJECT_PATH=PlanWiseBackend/PlanWiseBackend.csproj
 
+SCAFFOLD_CMD = dotnet ef dbcontext scaffold "Server=localhost;Database=principalsdb;User ID=sa;Password=P@ssw0rd123;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer -o Models
+
+
 network:
 	docker network create bank-network
 
@@ -25,6 +28,9 @@ dropdb:
 	dropdb:
 	docker exec -u root -it planwise-container bash -c "apt-get update && apt-get install -y mssql-tools unixodbc-dev && /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P P@ssw0rd123 -Q \"ALTER DATABASE principalsdb SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE principalsdb;\" -N -C"
 
+scaffold:
+	cd Entities && \
+	$(SCAFFOLD_CMD)
 
 # make new_migrations migrationsName=AddBaseTableForIdentity
 
@@ -40,4 +46,4 @@ server:
 	dotnet watch run --project $(PROJECT_PATH)
 
 
-.PHONY: network postgres new_migration migrations_update server mssql createdb dropdb
+.PHONY: network postgres new_migration migrations_update mssql createdb dropdb scaffold server

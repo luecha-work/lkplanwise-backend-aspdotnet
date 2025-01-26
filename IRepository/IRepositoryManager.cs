@@ -11,6 +11,7 @@ namespace IRepository
     {
         IAccountsRepository AccountRepository { get; }
         IRoleRepository RoleRepository { get; }
+        IAccountRolesRepository AccountRolesRepository { get; } 
         IAuthenticationManager AuthenticationManager { get; }
         IBlockBruteForceRepository BlockBruteForceRepository { get; }
         IPlanWiseSessionRepository PlanWiseSessionRepository { get; }

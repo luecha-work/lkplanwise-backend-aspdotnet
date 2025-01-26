@@ -31,7 +31,7 @@ namespace Entities
 
         public DateTime? UpdatedAt { get; set; }
 
-        public virtual ICollection<AccountRoles> AccountsRole { get; set; } =
+        public virtual ICollection<AccountRoles> AccountRoles { get; set; } =
             new List<AccountRoles>();
 
     }

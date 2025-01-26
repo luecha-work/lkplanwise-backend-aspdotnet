@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using PlanWiseBackend.Extensions;
 using PlanWiseBackend.HealthCheck;
 using PlanWiseBackend.Middleware;
+using Scalar.AspNetCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +29,6 @@ builder.Services.AddDbContext<PlanWiseDbContext>(
 );
 
 // Add services to the container.
-builder.Services.ConfigureSwagger();
 builder.Host.ConfigureSerilog();
 builder.Services.ConfigureCors(builder.Configuration);
 builder.Services.ConfigureIISIntegration();
@@ -51,8 +51,11 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
+builder.Services.ConfigureServiceManager();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddEndpointsApiExplorer();
+//builder.Services.ConfigureSwagger();
 builder.Services.AddOpenApi();
 
 //TODO: Add Scoped
@@ -75,15 +78,16 @@ builder
 
 builder.Services.AddHealthChecksUI().AddInMemoryStorage();
 
-builder
-    .Services.AddControllers(options =>
-    {
-        options.EnableEndpointRouting = false;
-    })
-    .AddOData(options =>
-    {
-        options.Select().Filter().OrderBy();
-    });
+// TODO: Add Validate Model State Filter
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new ValidateModelStateFilter());
+})
+.AddOData(options =>
+{
+    options.Select().Filter().OrderBy();
+});
+
 
 var app = builder.Build();
 
@@ -92,13 +96,11 @@ app.ConfigureExceptionHandler();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-}
+    //app.UseSwagger();
+    //app.UseSwaggerUI();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 if (app.Environment.IsProduction())
@@ -151,7 +153,6 @@ HangfireConfigurator.ConfigureHangfireDashboardAndJobs(app, builder.Configuratio
 
 app.UseStaticFiles();
 app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.All });
-
 app.UseSession();
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
@@ -159,12 +160,9 @@ app.UseStaticFiles();
 app.UseHangfireDashboard();
 app.UseIpRateLimiting();
 app.UseCors("CorsPolicy");
-app.UseAuthentication();
-app.UseAuthorization();
 
 //app.UseMiddleware<JwtUserProviderMiddleware>();
 //app.UseMiddleware<SurveyAxonsCmsSessionMiddleware>();
-//app.UseStaticFiles();
 
 app.MapHealthChecks(
     "/healthcheck",
@@ -176,8 +174,9 @@ app.MapHealthChecks(
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
-
+app.MapHealthChecksUI();
 app.MapControllers();
 
 app.Run();

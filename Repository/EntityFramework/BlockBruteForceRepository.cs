@@ -1,16 +1,15 @@
 ﻿using Entities;
 using IRepository;
 using Microsoft.EntityFrameworkCore;
-using Repository.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository
+namespace Repository.EntityFramework
 {
-    public class BlockBruteForceRepository: GenericRepository<BlockBruteForce>,
+    public class BlockBruteForceRepository : GenericRepository<BlockBruteForce>,
             IBlockBruteForceRepository
     {
         private readonly PlanWiseDbContext _context;

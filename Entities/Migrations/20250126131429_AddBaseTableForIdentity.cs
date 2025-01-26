@@ -15,24 +15,29 @@ namespace Entities.Migrations
                 name: "Accounts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     firstname = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     lastname = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    language = table.Column<string>(type: "character varying", nullable: true),
-                    profile_image_url = table.Column<string>(type: "character varying", nullable: true),
-                    profile_image_name = table.Column<string>(type: "character varying", nullable: true),
+                    language = table.Column<string>(type: "varchar(10)", unicode: false, maxLength: 10, nullable: true),
+                    profile_image_url = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: true),
+                    profile_image_name = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: true),
                     created_by = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     updated_by = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     username = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    normalized_userName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    normalized_email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    email_confirmed = table.Column<bool>(type: "bit", nullable: false),
                     password_hash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     security_stamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     concurrency_stamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     phonenumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    phonenumber_confirmed = table.Column<bool>(type: "bit", nullable: false),
+                    twofactorEnabled = table.Column<bool>(type: "bit", nullable: false),
                     lockout_end = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     lockout_enabled = table.Column<bool>(type: "bit", nullable: false),
                     access_failed_count = table.Column<int>(type: "int", nullable: false)
@@ -46,10 +51,10 @@ namespace Entities.Migrations
                 name: "Block_BruteForce",
                 columns: table => new
                 {
-                    blockforce_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    email = table.Column<string>(type: "character varying", nullable: false),
-                    count = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    status = table.Column<string>(type: "character varying", nullable: false, defaultValueSql: "'A'", comment: "L (Locked): ถูกล็อก\r\nU (UnLock): ไม่ล็อก"),
+                    blockforce_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "(newid())"),
+                    email = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: false),
+                    count = table.Column<int>(type: "int", nullable: false),
+                    status = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: false, defaultValue: "A", comment: "L (Locked): ถูกล็อก\r\nU (UnLock): ไม่ล็อก"),
                     locked_time = table.Column<DateTime>(type: "datetime2", nullable: true),
                     unlock_time = table.Column<DateTime>(type: "datetime2", nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -66,7 +71,7 @@ namespace Entities.Migrations
                 name: "PlanWiseSession",
                 columns: table => new
                 {
-                    session_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    session_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "(newid())"),
                     account_id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     login_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     platform = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
@@ -75,8 +80,8 @@ namespace Entities.Migrations
                     login_ip = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     issued_time = table.Column<DateTime>(type: "datetime2", nullable: false),
                     expiration_time = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    session_status = table.Column<string>(type: "character varying", nullable: false, defaultValueSql: "'A'", comment: "B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว"),
-                    token = table.Column<string>(type: "character varying", nullable: true),
+                    session_status = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: false, defaultValue: "A", comment: "B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว"),
+                    token = table.Column<string>(type: "varchar(1)", unicode: false, maxLength: 1, nullable: true),
                     refresh_token_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -92,7 +97,7 @@ namespace Entities.Migrations
                 name: "Roles",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     role_code = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false, defaultValueSql: "''"),
                     created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     updated_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -227,6 +232,18 @@ namespace Entities.Migrations
                 name: "IX_AccountLogin_UserId",
                 table: "AccountLogin",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "EmailIndex",
+                table: "Accounts",
+                column: "normalized_email");
+
+            migrationBuilder.CreateIndex(
+                name: "UserNameIndex",
+                table: "Accounts",
+                column: "normalized_userName",
+                unique: true,
+                filter: "[normalized_userName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_Roles_role_id",

@@ -24,7 +24,7 @@ namespace Entities
             IdentityUserToken<Guid>
         >
     {
-        public PlanWiseDbContext(DbContextOptions options)
+        public PlanWiseDbContext(DbContextOptions<PlanWiseDbContext> options)
             : base(options) { }
 
         public virtual DbSet<Account> Accounts { get; set; }
@@ -45,44 +45,54 @@ namespace Entities
             {
                 entity.ToTable("Accounts");
 
-                entity.HasIndex(e => e.NormalizedEmail, "EmailIndex");
-
-                entity.HasIndex(e => e.NormalizedUserName, "UserNameIndex").IsUnique();
-
-                //entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd(); //ValueGeneratedOnAdd
-                entity.Property(e => e.Firstname).HasColumnName("firstname").HasMaxLength(255);
-                entity.Property(e => e.Lastname).HasColumnName("lastname").HasMaxLength(255);
-                entity.Property(e => e.UserName).HasColumnName("username").HasMaxLength(255);
-                entity.Property(e => e.Active).HasColumnName("active");
-                entity.Property(e => e.Email).HasColumnName("email").HasMaxLength(255);
-                entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
-                entity.Property(e => e.SecurityStamp).HasColumnName("security_stamp");
-                entity.Property(e => e.ConcurrencyStamp).HasColumnName("concurrency_stamp");
-                entity.Property(e => e.PhoneNumber).HasColumnName("phonenumber").HasMaxLength(20);
-                entity.Property(e => e.LockoutEnd).HasColumnName("lockout_end");
-                entity.Property(e => e.LockoutEnabled).HasColumnName("lockout_enabled");
+                entity.Property(e => e.Id).ValueGeneratedOnAdd().HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.AccessFailedCount).HasColumnName("access_failed_count");
+                entity.Property(e => e.Active).HasColumnName("active");
+                entity.Property(e => e.ConcurrencyStamp).HasColumnName("concurrency_stamp");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
-                entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
-                entity.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(255);
-                entity.Property(e => e.UpdatedBy).HasColumnName("updated_by").HasMaxLength(255);
-                entity.Ignore(e => e.NormalizedUserName);
-                entity.Ignore(e => e.PhoneNumberConfirmed);
-                entity.Ignore(e => e.TwoFactorEnabled);
-                entity.Ignore(e => e.NormalizedEmail);
-                entity.Ignore(e => e.EmailConfirmed);
-                entity
-                    .Property(e => e.Language)
-                    .HasColumnType("character varying")
+                entity.Property(e => e.CreatedBy)
+                    .HasMaxLength(255)
+                    .HasColumnName("created_by");
+                entity.Property(e => e.Email)
+                    .HasMaxLength(255)
+                    .HasColumnName("email");
+                entity.Property(e => e.Firstname)
+                    .HasMaxLength(255)
+                    .HasColumnName("firstname");
+                entity.Property(e => e.Language)
+                    .HasMaxLength(10)
+                    .IsUnicode(false)
                     .HasColumnName("language");
-                entity
-                    .Property(e => e.ProfileImageName)
-                    .HasColumnType("character varying")
+                entity.Property(e => e.Lastname)
+                    .HasMaxLength(255)
+                    .HasColumnName("lastname");
+                entity.Property(e => e.LockoutEnabled).HasColumnName("lockout_enabled");
+                entity.Property(e => e.LockoutEnd).HasColumnName("lockout_end");
+                entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
+                entity.Property(e => e.NormalizedEmail).HasColumnName("normalized_email");
+                entity.Property(e => e.EmailConfirmed).HasColumnName("email_confirmed");
+                entity.Property(e => e.NormalizedUserName).HasColumnName("normalized_userName");
+                entity.Property(e => e.PhoneNumberConfirmed).HasColumnName("phonenumber_confirmed");
+                entity.Property(e => e.TwoFactorEnabled).HasColumnName("twofactorEnabled");
+                entity.Property(e => e.PhoneNumber)
+                    .HasMaxLength(20)
+                    .HasColumnName("phonenumber");
+                entity.Property(e => e.ProfileImageName)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
                     .HasColumnName("profile_image_name");
-                entity
-                    .Property(e => e.ProfileImageUrl)
-                    .HasColumnType("character varying")
+                entity.Property(e => e.ProfileImageUrl)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
                     .HasColumnName("profile_image_url");
+                entity.Property(e => e.SecurityStamp).HasColumnName("security_stamp");
+                entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+                entity.Property(e => e.UpdatedBy)
+                    .HasMaxLength(255)
+                    .HasColumnName("updated_by");
+                entity.Property(e => e.UserName)
+                    .HasMaxLength(255)
+                    .HasColumnName("username");
             });
 
             modelBuilder.Entity<Roles>(entity =>
@@ -91,7 +101,7 @@ namespace Entities
 
                 entity.HasIndex(e => e.NormalizedName, "RoleNameIndex").IsUnique();
 
-                entity.Property(r => r.Id).ValueGeneratedOnAdd();
+                entity.Property(r => r.Id).ValueGeneratedOnAdd().HasDefaultValueSql("NEWID()");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by");
                 entity.Property(e => e.Name).HasColumnName("name").HasMaxLength(255);
@@ -115,7 +125,12 @@ namespace Entities
             {
                 entity.ToTable("AccountsRole");
 
+                entity.HasKey(e => new { e.UserId, e.RoleId });
+
+                entity.ToTable("AccountsRole");
+
                 entity.HasIndex(e => e.RoleId, "IX_Accounts_Roles_role_id");
+
                 entity.Property(e => e.UserId).HasColumnName("user_id");
                 entity.Property(e => e.RoleId).HasColumnName("role_id");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
@@ -123,15 +138,9 @@ namespace Entities
                 entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
 
-                entity
-                    .HasOne(d => d.Role)
-                    .WithMany(p => p.AccountRoles)
-                    .HasForeignKey(d => d.RoleId);
+                entity.HasOne(d => d.Role).WithMany(p => p.AccountRoles).HasForeignKey(d => d.RoleId);
 
-                entity
-                    .HasOne(d => d.Account)
-                    .WithMany(p => p.AccountsRole)
-                    .HasForeignKey(d => d.UserId);
+                entity.HasOne(d => d.Account).WithMany(p => p.AccountRoles).HasForeignKey(d => d.UserId);
             });
 
             modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("AccountClaim");
@@ -143,66 +152,71 @@ namespace Entities
             modelBuilder.Entity<PlanWiseSession>(entity =>
             {
                 entity.HasKey(e => e.SessionId).HasName("cms_session_pk");
+
                 entity.ToTable("PlanWiseSession");
 
-                entity
-                    .Property(e => e.SessionId)
-                    .HasDefaultValueSql("NEWID()")
+                entity.Property(e => e.SessionId)
+                    .HasDefaultValueSql("(newid())")
                     .HasColumnName("session_id");
                 entity.Property(e => e.AccountId).HasColumnName("account_id");
-                entity.Property(e => e.Browser).HasMaxLength(50).HasColumnName("browser");
+                entity.Property(e => e.Browser)
+                    .HasMaxLength(50)
+                    .HasColumnName("browser");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+                entity.Property(e => e.CreatedBy).HasColumnName("created_by");
                 entity.Property(e => e.ExpirationTime).HasColumnName("expiration_time");
                 entity.Property(e => e.IssuedTime).HasColumnName("issued_time");
                 entity.Property(e => e.LoginAt).HasColumnName("login_at");
-                entity.Property(e => e.LoginIp).HasMaxLength(50).HasColumnName("login_ip");
-                entity.Property(e => e.Os).HasMaxLength(50).HasColumnName("os");
-                entity.Property(e => e.Platform).HasMaxLength(50).HasColumnName("platform");
+                entity.Property(e => e.LoginIp)
+                    .HasMaxLength(50)
+                    .HasColumnName("login_ip");
+                entity.Property(e => e.Os)
+                    .HasMaxLength(50)
+                    .HasColumnName("os");
+                entity.Property(e => e.Platform)
+                    .HasMaxLength(50)
+                    .HasColumnName("platform");
                 entity.Property(e => e.RefreshTokenAt).HasColumnName("refresh_token_at");
-                entity
-                    .Property(e => e.SessionStatusEnum)
-                    .HasDefaultValueSql("'A'")
-                    .HasComment(
-                        "B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว"
-                    )
-                    .HasColumnType("character varying")
+                entity.Property(e => e.SessionStatus)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasDefaultValue("A")
+                    .HasComment("B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว")
                     .HasColumnName("session_status");
-                entity
-                    .Property(e => e.Token)
-                    .HasColumnType("character varying")
+                entity.Property(e => e.Token)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
                     .HasColumnName("token");
-                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
-                entity.Property(e => e.CreatedBy).HasColumnName("created_by");
                 entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_By");
             });
 
             modelBuilder.Entity<BlockBruteForce>(entity =>
             {
-                entity.ToTable("Block_BruteForce");
-
                 entity.HasKey(e => e.BlockForceId).HasName("block_bruteforce_pk");
 
-                entity
-                    .Property(e => e.BlockForceId)
-                    .HasDefaultValueSql("NEWID()") // Changed from uuid_generate_v4() to NEWID()
+                entity.ToTable("Block_BruteForce");
+
+                entity.Property(e => e.BlockForceId)
+                    .HasDefaultValueSql("(newid())")
                     .HasColumnName("blockforce_id");
-                entity.Property(e => e.Count).HasDefaultValue(0).HasColumnName("count");
-                entity.Property(e => e.LockedTime).HasColumnName("locked_time");
-                entity
-                    .Property(e => e.Status)
-                    .HasDefaultValueSql("'A'")
-                    .HasComment("L (Locked): ถูกล็อก\r\nU (UnLock): ไม่ล็อก")
-                    .HasColumnType("character varying")
-                    .HasColumnName("status");
-                entity.Property(e => e.UnLockTime).HasColumnName("unlock_time");
-                entity
-                    .Property(e => e.Email)
-                    .HasColumnType("character varying")
-                    .HasColumnName("email");
-                entity.Property(e => e.UpdatedAt).HasColumnName("update_at");
-                entity.Property(e => e.UpdatedBy).HasColumnName("update_by");
+                entity.Property(e => e.Count).HasColumnName("count");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+                entity.Property(e => e.Email)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("email");
+                entity.Property(e => e.LockedTime).HasColumnName("locked_time");
+                entity.Property(e => e.Status)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasDefaultValue("A")
+                    .HasComment("L (Locked): ถูกล็อก\r\nU (UnLock): ไม่ล็อก")
+                    .HasColumnName("status");
+                entity.Property(e => e.UnLockTime).HasColumnName("unlock_time");
+                entity.Property(e => e.UpdatedAt).HasColumnName("update_at");
+                entity.Property(e => e.UpdatedBy).HasColumnName("update_by");
             });
 
         }

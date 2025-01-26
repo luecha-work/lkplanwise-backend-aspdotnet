@@ -3,6 +3,7 @@ using Entities;
 using Entities.ConfigurationModels;
 using Hangfire;
 using Hangfire.SqlServer;
+using IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Serilog;
+using Service;
 using System.Text;
 
 namespace PlanWiseBackend.Extensions
@@ -124,7 +126,7 @@ namespace PlanWiseBackend.Extensions
                     new OpenApiInfo
                     {
                         Title = "PlanWiseBackend API",
-                        Version = "1.0.0", // Specify a valid version here
+                        Version = "v1", // Specify a valid version here
                         Description = "PlanWise API by Luecha Kanmaneekul",
                     }
                 );
@@ -257,8 +259,8 @@ namespace PlanWiseBackend.Extensions
             services.AddHangfireServer();
         }
 
-        //public static void ConfigureServiceManager(this IServiceCollection services) =>
-        //    services.AddScoped<IServiceManager, ServiceManager>();
+        public static void ConfigureServiceManager(this IServiceCollection services) =>
+            services.AddScoped<IServiceManager, ServiceManager>();
 
         public static void AddJwtConfiguration(
             this IServiceCollection services,

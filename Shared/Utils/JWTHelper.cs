@@ -12,7 +12,7 @@ namespace Shared.Utils
 {
     public static class JWTHelper
     {
-        public static int GetAccoutIdFromToken(string token)
+        public static string GetAccoutIdFromToken(string token)
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
@@ -20,10 +20,10 @@ namespace Shared.Utils
                 .Claims.FirstOrDefault(claim => claim.Type == "account_id")
                 ?.Value;
 
-            return int.Parse(accountIdClaim);
+            return accountIdClaim ?? "";
         }
 
-        public static string GetAxonsCmsSessionIdFromToken(string token)
+        public static string GetSessionIdFromToken(string token)
         {
             var handler = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(token);
