@@ -77,7 +77,7 @@ namespace Service
             return newRefreshToken;
         }
 
-        public async Task<UserProvider> GetUserProvider(string accountId)
+        public async Task<UserProvider> GetUserProviderAsync(string accountId)
         {
             _user = await _repositoryManager.AccountRepository.FindAccountByAccountIdAsync(Guid.Parse(accountId));
 

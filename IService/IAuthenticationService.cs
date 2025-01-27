@@ -15,7 +15,7 @@ namespace IService
         string LoginAzureADForMultiTenant(string authorizeCode);
         Task<string> CreateRefreshTokenAsync();
         Task<AuthResponseDto?> VerifyRefreshTokenAsync(AuthResponseDto request);
-        Task<UserProvider> GetUserProvider(string accountId);
+        Task<UserProvider> GetUserProviderAsync(string accountId);
         bool VerifyAccessToken(string accessToken);
         Task<AccountDto> SingUpAsync(SingUpDto singUpDto);
     }

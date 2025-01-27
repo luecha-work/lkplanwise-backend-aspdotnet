@@ -1,4 +1,5 @@
 ﻿using Entities.ConfigurationModels;
+using IService;
 using Microsoft.Extensions.Options;
 using Shared.Exceptions;
 using Shared.Utils;
@@ -9,37 +10,34 @@ namespace PlanWiseBackend.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly JwtConfiguration _jwtConfiguration;
-        //private readonly ISerilogManager _logger;
 
         public SurveyAxonsCmsSessionMiddleware(
             RequestDelegate next,
             IOptions<JwtConfiguration> configurationJWT
-            //ISerilogManagerFactory serilogManagerFactory
         )
         {
             _next = next;
             _jwtConfiguration = configurationJWT.Value;
-            //_logger = serilogManagerFactory.CreateLogger<SurveyAxonsCmsSessionMiddleware>();
         }
 
         public async Task InvokeAsync(HttpContext context, IUserProvider userProvider)
         {
             try
             {
-                //IAuthServiceManager _authServiceManager =
-                //    context.RequestServices.GetRequiredService<IAuthServiceManager>();
+                if (IsHealthCheckRequest(context))
+                {
+                    await _next(context);
+                    return;
+                }
 
-                string? ipAddress = context.Connection.RemoteIpAddress.ToString();
-                string? controller = context.GetRouteValue("controller").ToString().ToUpper();
-                string? methodName = context.GetRouteValue("action").ToString().ToUpper() ?? string.Empty;
+                IServiceManager _service =
+                   context.RequestServices.GetRequiredService<IServiceManager>();
 
-                if (
-                    controller != "AUTHENTICATION"
-                    && methodName != "LOGINLOCAL"
-                    && methodName != "REFRESHTOKEN"
-                    && methodName != "VERIFYACCESSTOKEN"
-                    && methodName != "HEALTHCHECH"
-                )
+                string? ipAddress = context.Connection.RemoteIpAddress?.ToString();
+                string? controller = context.GetRouteValue("controller")?.ToString()?.ToUpper();
+                string? methodName = context.GetRouteValue("action")?.ToString()?.ToUpper() ?? string.Empty;
+
+                if (IsAuthenticationRequired(controller, methodName))
                 {
                     string? authorizationHeader = context.Request.Headers.Authorization;
                     if (
@@ -56,37 +54,33 @@ namespace PlanWiseBackend.Middleware
                             throw new VerificationTokenNotFoundForCheckSessionException();
                         }
 
-                            bool isVerifyJwtToken = JWTHelper.VerifyToken(token, _jwtConfiguration);
+                        bool isVerifyJwtToken = JWTHelper.VerifyToken(token, _jwtConfiguration);
 
-                        if (isVerifyJwtToken)
-                        {
-                            string sessionId = JWTHelper.GetSessionIdFromToken(token);
-                            string accountId = JWTHelper.GetAccoutIdFromToken(token);
-                            Guid guidSessionId = Guid.Parse(sessionId);
-
-                            //bool checkedSession =
-                            //    await _authServiceManager.AxonscmsSessionService.ChackeAxonscmsSessionStatusAsync(
-                            //        guidSessionId,
-                            //        accountId,
-                            //        ipAddress
-                            //    );
-
-                            //if (!checkedSession)
-                            //{
-                            //    throw new PlanWiseSessionFailUnauthorizedException();
-                            //}
-
-                            //userProvider =
-                            //    await _authServiceManager.AuthenticationService.GetUserProvider(
-                            //        accountId
-                            //    );
-
-                            context.Items["userProvider"] = userProvider;
-                        }
-                        else
+                        if (!isVerifyJwtToken)
                         {
                             throw new FailedAuthenticateSessionException();
                         }
+                        string sessionId = JWTHelper.GetSessionIdFromToken(token);
+                        string accountId = JWTHelper.GetAccoutIdFromToken(token);
+                        Guid guidSessionId = Guid.Parse(sessionId);
+                        Guid guidAccountId = Guid.Parse(accountId);
+
+                        bool checkedSession = _service.PlanWiseSessionService.CheckPlanWiseSessionStatus(
+                            guidSessionId,
+                            guidAccountId,
+                            ipAddress
+                        );
+
+                        if (!checkedSession)
+                        {
+                            throw new PlanWiseSessionFailUnauthorizedException();
+                        }
+
+                        userProvider = await _service.AuthenticationService.GetUserProviderAsync(
+                               accountId
+                           );
+
+                        context.Items["userProvider"] = userProvider;
                     }
                     else
                     {
@@ -101,9 +95,25 @@ namespace PlanWiseBackend.Middleware
                 //_logger.LogError(
                 //    $"Something Went wrong while processing {context.Request.Path}, Details: {ex}"
                 //);
-
+                Console.WriteLine($"Something Went wrong while processing {context.Request.Path}, Details: {ex}");
                 throw;
             }
         }
+
+        private bool IsHealthCheckRequest(HttpContext context)
+        {
+            return context.Request.Path.Value?.ToUpper() == "/HEALTHCHECK";
+        }
+
+        private bool IsAuthenticationRequired(string? controller, string? methodName)
+        {
+            return controller != "AUTHENTICATION"
+                && methodName != "LOGINLOCAL"
+                && methodName != "REFRESHTOKEN"
+                && methodName != "VERIFYACCESSTOKEN"
+                && methodName != "HEALTHCHECH";
+        }
     }
 }
+
+

@@ -62,7 +62,7 @@ namespace Repository.EntityFramework
 
         public void Commit() => _context.SaveChanges();
 
-        private IUserProvider? GetUserProvider()
+        private IUserProvider? GetUserProviderAsync()
         {
             var context = _httpContextAccessor.HttpContext;
             if (context != null && context.Items.ContainsKey("userProvider"))

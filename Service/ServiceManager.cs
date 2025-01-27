@@ -50,7 +50,7 @@ namespace Service
         public IBlockBruteForceService BlockBruteForceService => _blockBruteForceService.Value;
         public IPlanWiseSessionService PlanWiseSessionService => _planWiseSessionService.Value;
 
-        private IUserProvider? GetUserProvider()
+        private IUserProvider? GetUserProviderAsync()
         {
             var context = _httpContextAccessor.HttpContext;
             if (context != null && context.Items.ContainsKey("userProvider"))
