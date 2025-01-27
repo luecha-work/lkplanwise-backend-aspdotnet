@@ -150,35 +150,35 @@ namespace Entities
 
                 entity.ToTable("PlanWiseSession");
 
-                entity
-                    .Property(e => e.SessionId)
+                entity.Property(e => e.SessionId)
                     .HasDefaultValueSql("(newid())")
                     .HasColumnName("session_id");
                 entity.Property(e => e.AccountId).HasColumnName("account_id");
-                entity.Property(e => e.Browser).HasMaxLength(50).HasColumnName("browser");
+                entity.Property(e => e.Browser)
+                    .HasMaxLength(50)
+                    .HasColumnName("browser");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by");
                 entity.Property(e => e.ExpirationTime).HasColumnName("expiration_time");
                 entity.Property(e => e.IssuedTime).HasColumnName("issued_time");
                 entity.Property(e => e.LoginAt).HasColumnName("login_at");
-                entity.Property(e => e.LoginIp).HasMaxLength(50).HasColumnName("login_ip");
-                entity.Property(e => e.Os).HasMaxLength(50).HasColumnName("os");
-                entity.Property(e => e.Platform).HasMaxLength(50).HasColumnName("platform");
+                entity.Property(e => e.LoginIp)
+                    .HasMaxLength(50)
+                    .HasColumnName("login_ip");
+                entity.Property(e => e.Os)
+                    .HasMaxLength(50)
+                    .HasColumnName("os");
+                entity.Property(e => e.Platform)
+                    .HasMaxLength(50)
+                    .HasColumnName("platform");
                 entity.Property(e => e.RefreshTokenAt).HasColumnName("refresh_token_at");
-                entity
-                    .Property(e => e.SessionStatus)
+                entity.Property(e => e.SessionStatus)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .HasDefaultValue("A")
-                    .HasComment(
-                        "B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว"
-                    )
+                    .HasComment("B (Blocked): Session ยังไม่ได้ใช้งาน\r\nA (Active): Session กำลังใช้งานอยู่\r\nE (Expired): Session หมดอายุแล้ว")
                     .HasColumnName("session_status");
-                entity
-                    .Property(e => e.Token)
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
-                    .HasColumnName("token");
+                entity.Property(e => e.Token).HasColumnName("token");
                 entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_By");
             });
@@ -189,21 +189,17 @@ namespace Entities
 
                 entity.ToTable("Block_BruteForce");
 
-                entity
-                    .Property(e => e.BlockForceId)
+                entity.Property(e => e.BlockForceId)
                     .HasDefaultValueSql("(newid())")
                     .HasColumnName("blockforce_id");
                 entity.Property(e => e.Count).HasColumnName("count");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by");
-                entity
-                    .Property(e => e.Email)
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
+                entity.Property(e => e.Email)
+                    .HasMaxLength(255)
                     .HasColumnName("email");
                 entity.Property(e => e.LockedTime).HasColumnName("locked_time");
-                entity
-                    .Property(e => e.Status)
+                entity.Property(e => e.Status)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .HasDefaultValue("A")

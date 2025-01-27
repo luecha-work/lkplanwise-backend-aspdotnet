@@ -80,6 +80,8 @@ namespace PlanWiseBackend.Middleware
                                accountId
                            );
 
+                        Console.WriteLine("UserProvider: " + userProvider);
+
                         context.Items["userProvider"] = userProvider;
                     }
                     else
@@ -110,8 +112,7 @@ namespace PlanWiseBackend.Middleware
             return controller != "AUTHENTICATION"
                 && methodName != "LOGINLOCAL"
                 && methodName != "REFRESHTOKEN"
-                && methodName != "VERIFYACCESSTOKEN"
-                && methodName != "HEALTHCHECH";
+                && methodName != "VERIFYACCESSTOKEN";
         }
     }
 }

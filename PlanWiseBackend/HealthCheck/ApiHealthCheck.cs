@@ -19,25 +19,22 @@ namespace PlanWiseBackend.HealthCheck
         )
         {
             var path = _configuration.GetSection("HealthChecks")["Path"];
+
             using (var httpClient = _httpClientFactory.CreateClient())
             {
                 var response = await httpClient.GetAsync(path, CancellationToken.None);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    return await Task.FromResult(
-                        new HealthCheckResult(
+                    return new HealthCheckResult(
                             status: HealthStatus.Healthy,
                             description: "The API is up and running."
-                        )
-                    );
+                        );
                 }
-                return await Task.FromResult(
-                    new HealthCheckResult(
+                return new HealthCheckResult(
                         status: HealthStatus.Unhealthy,
                         description: "The API is down."
-                    )
-                );
+                    );
             }
         }
     }

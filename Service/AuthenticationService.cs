@@ -149,7 +149,7 @@ namespace Service
         //                 clientDetail
         //             );
 
-        //             var token = await GenerateToken();
+        //             var token = await GenerateTokenAsync();
 
         //             _cmsSession.Token = token;
         //             _cmsSession.UpdatedAt = DateTime.UtcNow;
@@ -194,14 +194,13 @@ namespace Service
                 clientDetail
             );
 
-            var token = await GenerateToken();
+            var token = await GenerateTokenAsync();
 
             _session.Token = token;
             _session.UpdatedAt = DateTime.UtcNow;
 
             //TDOD: Update session
-            _repositoryManager.PlanWiseSessionRepository.Update(_session);
-            _repositoryManager.Commit();
+            await _repositoryManager.PlanWiseSessionRepository.UpdateAsync(_session);
 
             return new AuthResponseDto
             {
@@ -328,7 +327,7 @@ namespace Service
 
             if (isValidRefreshToken)
             {
-                var token = await GenerateToken();
+                var token = await GenerateTokenAsync();
 
                 _session.Token = token;
                 _session.UpdatedAt = DateTime.UtcNow;
@@ -353,9 +352,8 @@ namespace Service
             throw new InvalidRefreshTokenException();
         }
 
-        private async Task<string> GenerateToken()
+        private async Task<string> GenerateTokenAsync()
         {
-            Console.WriteLine("Generate Token 111");
             var securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtConfiguration.SecretKey) //TODO: Get Key from JwtSettings in  applications.json
             );
@@ -384,8 +382,6 @@ namespace Service
             }
             // .Union(userClaims)
             .Union(roleClaims);
-
-            Console.WriteLine("Claims: " + claims);
 
             var token = new JwtSecurityToken(
                 issuer: _jwtConfiguration.ValidIssuer,
