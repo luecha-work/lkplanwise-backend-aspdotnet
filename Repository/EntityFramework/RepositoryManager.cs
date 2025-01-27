@@ -11,7 +11,7 @@ using IRepository;
 
 namespace Repository.EntityFramework
 {
-    public class RepositoryManager: IRepositoryManager
+    public class RepositoryManager : IRepositoryManager
     {
         private readonly PlanWiseDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -62,12 +62,12 @@ namespace Repository.EntityFramework
 
         public void Commit() => _context.SaveChanges();
 
-        private IUserProvider GetUserProvider()
+        private IUserProvider? GetUserProvider()
         {
             var context = _httpContextAccessor.HttpContext;
             if (context != null && context.Items.ContainsKey("userProvider"))
             {
-                return context.Items["userProvider"] as IUserProvider;
+                return context?.Items["userProvider"] as IUserProvider ?? null;
             }
             return null;
         }

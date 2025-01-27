@@ -36,8 +36,8 @@ namespace Service
 
         public AuthenticationService(
             IRepositoryManager repositoryManager,
-            IPlanWiseSessionService planWiseSessionService,
-            IBlockBruteForceService blockforceService,
+            Lazy<IPlanWiseSessionService> planWiseSessionService,
+            Lazy<IBlockBruteForceService> blockforceService,
             IConfiguration configuration,
             IOptions<JwtConfiguration> configurationJwt,
             IOptions<IdentityProviderConfigure> configurationIdentityConfigure,
@@ -45,8 +45,8 @@ namespace Service
         )
         {
             _repositoryManager = repositoryManager;
-            _planWiseSessionService = planWiseSessionService;
-            _blockForceService = blockforceService;
+            _planWiseSessionService = planWiseSessionService.Value;
+            _blockForceService = blockforceService.Value;
             _configuration = configuration;
             _jwtConfiguration = configurationJwt.Value;
             _configurationIdentityProvider = configurationIdentityConfigure.Value;
@@ -352,7 +352,6 @@ namespace Service
 
             throw new InvalidRefreshTokenException();
         }
-
 
         private async Task<string> GenerateToken()
         {

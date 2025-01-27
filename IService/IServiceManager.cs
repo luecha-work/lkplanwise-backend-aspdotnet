@@ -9,5 +9,7 @@ namespace IService
     public interface IServiceManager
     {
         IAuthenticationService AuthenticationService { get; }
+        IBlockBruteForceService BlockBruteForceService { get; }
+        IPlanWiseSessionService PlanWiseSessionService { get; }
     }
 }
