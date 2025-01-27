@@ -18,5 +18,7 @@ namespace IRepository
         Task<IList<string>> GetRolesForAccountAsync(Account account);
         Task<IList<Claim>> GetClaimsForAccountAsync(Account account);
         Task<IEnumerable<IdentityError>> CreateAccountAsync(Account account, string password);
+        Task<IEnumerable<IdentityError>> LockAccountAsync(string email);
+        Task<IEnumerable<IdentityError>> UnLockAccountAsync(string email);
     }
 }

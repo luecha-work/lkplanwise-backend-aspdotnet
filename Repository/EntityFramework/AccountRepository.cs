@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Repository.EntityFramework
 {
-    public class AccountRepository: GenericRepository<Account>, IAccountsRepository
+    public class AccountRepository : GenericRepository<Account>, IAccountsRepository
     {
         private readonly PlanWiseDbContext _context;
         private readonly UserManager<Account> _userManager;
@@ -20,7 +20,7 @@ namespace Repository.EntityFramework
             PlanWiseDbContext context,
             UserManager<Account> userManager,
             RoleManager<Roles> roleManager
-            ): base(context)
+            ) : base(context)
         {
             _context = context;
             _userManager = userManager;
@@ -30,6 +30,7 @@ namespace Repository.EntityFramework
         public async Task<bool> CheckPasswordAsync(Account account, string password)
         {
             var result = await _userManager.CheckPasswordAsync(account, password);
+
             return result;
         }
 
@@ -46,28 +47,56 @@ namespace Repository.EntityFramework
             return account;
         }
 
-        public Task<Account?> FindAccountByEmailAsync(string email)
+        public async Task<Account?> FindAccountByEmailAsync(string email)
         {
-            var account = _userManager.FindByEmailAsync(email);
+            var account = await _userManager.FindByEmailAsync(email);
             return account;
         }
 
-        public Task<Account?> FindAccountByUsernameAsync(string username)
+        public async Task<Account?> FindAccountByUsernameAsync(string username)
         {
-            var account = _userManager.FindByNameAsync(username);
+            var account = await _userManager.FindByNameAsync(username);
             return account;
         }
 
-        public Task<IList<Claim>> GetClaimsForAccountAsync(Account account)
+        public async Task<IList<Claim>> GetClaimsForAccountAsync(Account account)
         {
-            var claims = _userManager.GetClaimsAsync(account);
+            var claims = await _userManager.GetClaimsAsync(account);
             return claims;
         }
 
-        public Task<IList<string>> GetRolesForAccountAsync(Account account)
+        public async Task<IList<string>> GetRolesForAccountAsync(Account account)
         {
-            var roles = _userManager.GetRolesAsync(account);
+            var roles = await _userManager.GetRolesAsync(account);
             return roles;
+        }
+
+        public async Task<IEnumerable<IdentityError>> LockAccountAsync(string email)
+        {
+            var account = await FindAccountByEmailAsync(email);
+
+            if (account == null)
+            {
+                return new List<IdentityError> { new IdentityError { Description = "Account not found." } };
+            }
+
+            var result = await _userManager.SetLockoutEnabledAsync(account, true);
+
+            return result.Succeeded ? Enumerable.Empty<IdentityError>() : result.Errors;
+        }
+
+        public async Task<IEnumerable<IdentityError>> UnLockAccountAsync(string email)
+        {
+            var account = await FindAccountByEmailAsync(email);
+
+            if (account == null)
+            {
+                return new List<IdentityError> { new IdentityError { Description = "Account not found." } };
+            }
+
+            var result = await _userManager.SetLockoutEnabledAsync(account, false);
+
+            return result.Succeeded ? Enumerable.Empty<IdentityError>() : result.Errors;
         }
     }
 }

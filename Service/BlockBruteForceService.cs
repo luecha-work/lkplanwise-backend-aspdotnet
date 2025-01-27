@@ -31,7 +31,22 @@ namespace Service
 
             if (_bruteForce == null)
             {
-                CreateBlockBruteForce(email);
+                // CreateBlockBruteForce(email);
+                BlockBruteForce newBruteForce = new BlockBruteForce()
+                {
+                    Count = 1,
+                    Email = email,
+                    Status = EnumHelper.GetEnumValue(BlockForceStatusEnum.UnLock),
+                    LockedTime = null,
+                    UnLockTime = null,
+                    CreatedBy = "system",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = null,
+                    UpdatedBy = null
+                };
+
+                _repositoryManager.BlockBruteForceRepository.Create(newBruteForce);
+                _repositoryManager.Commit();
             }
             else if (_bruteForce.Count >= 4)
             {
@@ -46,15 +61,14 @@ namespace Service
                 _bruteForce.UpdatedAt = DateTime.UtcNow;
 
                 _repositoryManager.BlockBruteForceRepository.Update(_bruteForce);
+                _repositoryManager.Commit();
             }
             else
             {
                 _bruteForce.Count += 1;
-
                 _repositoryManager.BlockBruteForceRepository.Update(_bruteForce);
+                _repositoryManager.Commit();
             }
-
-            _repositoryManager.Commit();
 
             return _bruteForce;
         }
@@ -82,6 +96,9 @@ namespace Service
             )
             {
                 UnLockBlockBruteForce(blockForce);
+
+                // await _repositoryManager.AccountRepository.UnLockAccountAsync(email);
+
                 return true;
             }
 
@@ -97,8 +114,10 @@ namespace Service
                 Status = EnumHelper.GetEnumValue(BlockForceStatusEnum.UnLock),
                 LockedTime = null,
                 UnLockTime = null,
+                CreatedBy = "system",
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                UpdatedAt = null,
+                UpdatedBy = null
             };
 
 
@@ -115,9 +134,8 @@ namespace Service
             if (checkBruteForce != null)
             {
                 _repositoryManager.BlockBruteForceRepository.Delete(checkBruteForce);
+                _repositoryManager.Commit();
             }
-
-            _repositoryManager.Commit();
         }
 
         // public void UpdateBlockBruteForce(BlockBruteForce blockForce)

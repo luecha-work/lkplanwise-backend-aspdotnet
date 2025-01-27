@@ -347,8 +347,6 @@ namespace Service
 
             _planWiseSessionService.BlockPlanWiseSession(_session);
 
-            _repositoryManager.Commit();
-
             throw new InvalidRefreshTokenException();
         }
 

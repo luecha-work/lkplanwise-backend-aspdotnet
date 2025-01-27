@@ -40,6 +40,7 @@ namespace Service
         {
             planWiseSession.SessionStatus = EnumHelper.GetEnumValue(SessionStatusEnum.Blocked);
             planWiseSession.UpdatedAt = DateTime.UtcNow;
+
             _repositoryManager.PlanWiseSessionRepository.Update(planWiseSession);
             _repositoryManager.Commit();
         }
@@ -96,7 +97,6 @@ namespace Service
 
         public PlanWiseSession CreatePlanWiseSession(Account account, BaseAuthenticationDto clientDetail)
         {
-            Console.WriteLine("CreatePlanWiseSession");
             var ipAddr = _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? string.Empty;
             var dateNow = DateTime.UtcNow;
             var dateExpiration = dateNow.AddHours(24);
