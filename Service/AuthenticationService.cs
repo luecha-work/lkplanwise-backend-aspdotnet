@@ -23,16 +23,20 @@ namespace Service
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IRepositoryManager _repositoryManager;
+        private readonly IPlanWiseSessionService _planWiseSessionService;
+        private readonly IBlockBruteForceService _blockforceService;
         private readonly IConfiguration _configuration;
         private readonly JwtConfiguration _jwtConfiguration;
         private readonly IdentityProviderConfigure _configurationIdentityProvider;
         private readonly IMapper _mapper;
 
         private Account? _user;
-        private PlanWiseSession? _Session;
+        private PlanWiseSession? _session;
 
         public AuthenticationService(
             IRepositoryManager repositoryManager,
+            IPlanWiseSessionService planWiseSessionService,
+            IBlockBruteForceService blockforceService,
             IConfiguration configuration,
             IOptions<JwtConfiguration> configurationJwt,
             IOptions<IdentityProviderConfigure> configurationIdentityConfigure,
@@ -40,6 +44,8 @@ namespace Service
         )
         {
             _repositoryManager = repositoryManager;
+            _planWiseSessionService = planWiseSessionService;
+            _blockforceService = blockforceService;
             _configuration = configuration;
             _jwtConfiguration = configurationJwt.Value;
             _configurationIdentityProvider = configurationIdentityConfigure.Value;
@@ -117,15 +123,15 @@ namespace Service
                 PlatForm = loginLocalDto.PlatForm
             };
             // TODO: Implement session management
-            //_Session = await _axonscmsSessionService.CreateAxonscmsSessionAsync(
-            //    _user,
-            //    clientDetail
-            //);
+            _session = _planWiseSessionService.CreatePlanWiseSession(
+                _user,
+                clientDetail
+            );
 
             var token = await GenerateToken();
 
-            //_Session.Token = token;
-            //_Session.UpdatedAt = DateTime.UtcNow;
+            _session.Token = token;
+            _session.UpdatedAt = DateTime.UtcNow;
 
             //TDOD: Update session
             //_axonscmsSessionService.UpdatAxonscmsSession(_cmsSession);

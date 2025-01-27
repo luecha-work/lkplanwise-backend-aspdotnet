@@ -1,29 +1,27 @@
-﻿using Entities.ConfigurationModels;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Entities.ConfigurationModels;
 using IService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Shared.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Controllers
 {
     [ApiController]
     [Route("api/authentication")]
-    public class AuthenticationController: ControllerBase
+    public class AuthenticationController : ControllerBase
     {
         private readonly IServiceManager _service;
         private readonly IConfiguration _configuration;
+
         //private readonly ISerilogManager _logger;
 
-        public AuthenticationController(
-            IServiceManager service,
-            IConfiguration configuration
-        )
+        public AuthenticationController(IServiceManager service, IConfiguration configuration)
         {
             _service = service;
             _configuration = configuration;
@@ -48,9 +46,7 @@ namespace Controllers
             //    return Unauthorized();
             //}
 
-            var authResponse = await _service.AuthenticationService.LoginLocalAsync(
-                loginLocalDto
-            );
+            var authResponse = await _service.AuthenticationService.LoginLocalAsync(loginLocalDto);
 
             return Ok(authResponse);
         }
