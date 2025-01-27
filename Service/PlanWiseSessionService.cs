@@ -32,15 +32,16 @@ namespace Service
             planWiseSession.SessionStatus = EnumHelper.GetEnumValue(SessionStatusEnum.Expired);
             planWiseSession.UpdatedAt = DateTime.UtcNow;
 
-            UpdatePlanWiseSession(planWiseSession);
+            _repositoryManager.PlanWiseSessionRepository.Update(planWiseSession);
+            _repositoryManager.Commit();
         }
 
         public void BlockPlanWiseSession(PlanWiseSession planWiseSession)
         {
             planWiseSession.SessionStatus = EnumHelper.GetEnumValue(SessionStatusEnum.Blocked);
             planWiseSession.UpdatedAt = DateTime.UtcNow;
-
-            UpdatePlanWiseSession(planWiseSession);
+            _repositoryManager.PlanWiseSessionRepository.Update(planWiseSession);
+            _repositoryManager.Commit();
         }
 
         public bool CheckPlanWiseSessionStatus(Guid sessionId, Guid accountId, string reqIpAddress)
@@ -84,7 +85,7 @@ namespace Service
             string sessionId = JWTHelper.GetSessionIdFromToken(token);
 
             var session =
-                 _repositoryManager.PlanWiseSessionRepository.FindOneById(Guid.Parse(sessionId) );
+                 _repositoryManager.PlanWiseSessionRepository.FindOneById(Guid.Parse(sessionId));
 
             if (session != null)
             {
@@ -104,7 +105,7 @@ namespace Service
 
             if (oldPlanWiseSession != null)
             {
-                 DeletePlanWiseSession(oldPlanWiseSession.SessionId);
+                DeletePlanWiseSession(oldPlanWiseSession.SessionId);
             }
 
             var sessionForCreate = new PlanWiseSession()
@@ -142,18 +143,19 @@ namespace Service
         public PlanWiseSession? GetPlanWiseSessionById(Guid sessionId)
         {
             var session = _repositoryManager.PlanWiseSessionRepository.FindOneById(sessionId);
-            if (session == null) { 
+            if (session == null)
+            {
                 throw new Exception("Session not found.");
             }
 
             return session;
         }
 
-        public void UpdatePlanWiseSession(PlanWiseSession planWiseSession)
-        {
-            _repositoryManager.PlanWiseSessionRepository.Update(planWiseSession);
-            _repositoryManager.Commit();
-        }
+        // public void UpdatePlanWiseSession(PlanWiseSession planWiseSession)
+        // {
+        //     _repositoryManager.PlanWiseSessionRepository.Update(planWiseSession);
+        //     _repositoryManager.Commit();
+        // }
 
         private string GetAuthorizationHeader()
         {

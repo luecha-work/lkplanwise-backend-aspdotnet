@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace IRepository
 {
-    public interface IAccountsRepository: IGenericRepositoryEntityFramework<Account>
+    public interface IAccountsRepository : IGenericRepositoryEntityFramework<Account>
     {
         Task<Account?> FindAccountByEmailAsync(string email);
         Task<Account?> FindAccountByAccountIdAsync(Guid AccountId);

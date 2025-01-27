@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shared.DTOs;
+using Shared.Enum;
 using Shared.Exceptions;
 using Shared.Utils;
 using System;
@@ -24,7 +25,7 @@ namespace Service
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IPlanWiseSessionService _planWiseSessionService;
-        private readonly IBlockBruteForceService _blockforceService;
+        private readonly IBlockBruteForceService _blockForceService;
         private readonly IConfiguration _configuration;
         private readonly JwtConfiguration _jwtConfiguration;
         private readonly IdentityProviderConfigure _configurationIdentityProvider;
@@ -45,7 +46,7 @@ namespace Service
         {
             _repositoryManager = repositoryManager;
             _planWiseSessionService = planWiseSessionService;
-            _blockforceService = blockforceService;
+            _blockForceService = blockforceService;
             _configuration = configuration;
             _jwtConfiguration = configurationJwt.Value;
             _configurationIdentityProvider = configurationIdentityConfigure.Value;
@@ -97,6 +98,71 @@ namespace Service
             throw new NotImplementedException();
         }
 
+        //         public async Task<AuthResponseDto> LoginAzureADForMultiTenantAsync(
+        //     AuthenticationAzureDto loginADDto
+        // )
+        //         {
+        //             var azureADTokenService = new AzureAdTokenService(_configuration);
+        //             var azureADToken = azureADTokenService.GetAccessToken(loginADDto.AzureCode);
+        //             var email = string.Empty;
+        //             var azureDecryptToken = azureADTokenService.GetDataFromToken(azureADToken);
+
+        //             if (azureDecryptToken != null)
+        //             {
+        //                 email = azureDecryptToken.email;
+        //                 if (string.IsNullOrEmpty(email))
+        //                     email = azureDecryptToken.unique_name;
+        //             }
+
+        //             bool checkeForce = _blockforceService.CheckeBlockforceStatus(email);
+
+        //             if (!checkeForce)
+        //             {
+        //                 return null;
+        //             }
+
+        //             _user = await _repositoryManager.AccountRepository.FindAccountByEmailAsync(email);
+
+        //             if (_user == null)
+        //             {
+        //                 await _blockforceService.BlockBruteforceManagmentAsync(email);
+
+        //                 throw new LoginBadRequestException(
+        //                     "This user was not found in the system. Please contact the system administrator."
+        //                 );
+        //             }
+
+        //             // if (_user.Active == false)
+        //             // {
+        //             //     return null;
+        //             // }
+
+        //             var clientDetail = new BaseAuthenticationDto()
+        //             {
+        //                 Os = loginADDto.Os,
+        //                 Browser = loginADDto.Browser,
+        //                 PlatForm = loginADDto.PlatForm
+        //             };
+
+        //             _cmsSession = await _axonscmsSessionService.CreateAxonscmsSessionAsync(
+        //                 _user,
+        //                 clientDetail
+        //             );
+
+        //             var token = await GenerateToken();
+
+        //             _cmsSession.Token = token;
+        //             _cmsSession.UpdatedAt = DateTime.UtcNow;
+
+        //             _axonscmsSessionService.UpdatAxonscmsSession(_cmsSession);
+
+        //             return new AuthResponseDto
+        //             {
+        //                 AccessToken = token,
+        //                 RefreshToken = await CreateRefreshTokenAsync()
+        //             };
+        //         }
+
         public async Task<AuthResponseDto> LoginLocalAsync(AuthenticationLocalDto loginLocalDto)
         {
             _user = await _repositoryManager.AccountRepository.FindAccountByEmailAsync(
@@ -111,7 +177,7 @@ namespace Service
             if (_user == null || !isValidUser)
             {
                 // TODO: Implement bruteforce management
-                // await _blockforceService.BlockBruteforceManagmentAsync(loginLocalDto.Email);
+                _blockForceService.BlockBruteForceManagement(loginLocalDto.Email);
 
                 throw new LoginBadRequestException("Please check your username or password incorrect.");
             }
@@ -134,7 +200,8 @@ namespace Service
             _session.UpdatedAt = DateTime.UtcNow;
 
             //TDOD: Update session
-            //_axonscmsSessionService.UpdatAxonscmsSession(_cmsSession);
+            _repositoryManager.PlanWiseSessionRepository.Update(_session);
+            _repositoryManager.Commit();
 
             return new AuthResponseDto
             {
@@ -171,7 +238,7 @@ namespace Service
 
             if (!errors.Any())
             {
-              
+
 
                 var role = await _repositoryManager.RoleRepository.FindByRoleNameAsync("User");
 
@@ -201,83 +268,89 @@ namespace Service
             return JWTHelper.VerifyToken(accessToken, _jwtConfiguration);
         }
 
-        public async Task<AuthResponseDto> VerifyRefreshTokenAsync(AuthResponseDto request)
+        public async Task<AuthResponseDto?> VerifyRefreshTokenAsync(AuthResponseDto request)
         {
-            //var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
-            //var tokenContent = jwtSecurityTokenHandler.ReadJwtToken(request.AccessToken);
-            //var username = tokenContent
-            //    .Claims.ToList()
-            //    .Find(q => q.Type == JwtRegisteredClaimNames.Sub)
-            //    ?.Value;
+            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            var tokenContent = jwtSecurityTokenHandler.ReadJwtToken(request.AccessToken);
+            var username = tokenContent
+               .Claims.ToList()
+               .Find(q => q.Type == JwtRegisteredClaimNames.Sub)
+               ?.Value;
 
-            //var sessionId = tokenContent.Claims.FirstOrDefault(q => q.Type == "session_id")?.Value;
-            //Guid guidSessionId = Guid.Parse(sessionId);
+            var sessionId = tokenContent.Claims.FirstOrDefault(q => q.Type == "session_id")?.Value;
 
-            //var requestUserId = int.Parse(
-            //    tokenContent.Claims.FirstOrDefault(q => q.Type == "account_id")?.Value
-            //);
+            if (sessionId == null)
+            {
+                throw new ArgumentNullException(nameof(sessionId), "Session ID cannot be null.");
+            }
+            Guid guidSessionId = Guid.Parse(sessionId);
 
-            //_user = await _repositoryManager.AccountRepository.FindAccountByUsernameAsync(username);
+            var requestUserId = Guid.Parse(
+               tokenContent.Claims.FirstOrDefault(q => q.Type == "account_id")?.Value ?? throw new ArgumentNullException("account_id")
+            );
 
-            ////_Session =
-            ////    await _repositoryManager.axonscmsSessionRepository.FindSessionByIdAsync(
-            ////        guidSessionId
-            ////    );
+            if (username == null)
+            {
+                throw new ArgumentNullException(nameof(username), "Username cannot be null.");
+            }
 
-            //if (_user == null || _user.Id != requestUserId || _cmsSession == null)
-            //    return null;
+            _user = await _repositoryManager.AccountRepository.FindAccountByUsernameAsync(username);
 
-            ////TODO: Validate Last Time Refresh Token
-            //var refreshTokenTimeAgain =
-            //    _cmsSession.RefreshTokenAt != null
-            //        ? _cmsSession.RefreshTokenAt.Value.AddMinutes(5)
-            //        : (DateTime?)null;
+            _session = _repositoryManager.PlanWiseSessionRepository.FindOneById(guidSessionId);
 
-            //if (
-            //    _cmsSession.RefreshTokenAt != null
-            //    && _cmsSession.RefreshTokenAt < refreshTokenTimeAgain
-            //)
-            //    throw new RefreshTokensTooOftenException();
+            if (_user == null || _user.Id != requestUserId || _session == null)
+                return null;
 
-            //if (_cmsSession.SessionStatusEnum == EnumHelper.GetEnumValue(SessionStatusEnum.Expired))
-            //    throw new RefreshTokenExpirationTimeException();
+            //TODO: Validate Last Time Refresh Token
+            var refreshTokenTimeAgain =
+               _session.RefreshTokenAt != null
+                   ? _session.RefreshTokenAt.Value.AddMinutes(5)
+                   : (DateTime?)null;
 
-            //if (_cmsSession.SessionStatusEnum == EnumHelper.GetEnumValue(SessionStatusEnum.Blocked))
-            //    throw new BlockedRefreshTokenExpirationException();
+            if (
+               _session.RefreshTokenAt != null
+               && _session.RefreshTokenAt < refreshTokenTimeAgain
+            )
+                throw new RefreshTokensTooOftenException();
 
-            //var isValidRefreshToken = await _authRepositoryManager.authManager.VerifyUserToken(
-            //    _user,
-            //    _configurationIdentityProvider.LoginProvider,
-            //    _configurationIdentityProvider.RefreshTokenProvider,
-            //    request.RefreshToken
-            //);
+            if (_session.SessionStatus == EnumHelper.GetEnumValue(SessionStatusEnum.Expired))
+                throw new RefreshTokenExpirationTimeException();
 
-            //if (isValidRefreshToken)
-            //{
-            //    var token = await GenerateToken();
+            if (_session.SessionStatus == EnumHelper.GetEnumValue(SessionStatusEnum.Blocked))
+                throw new BlockedRefreshTokenExpirationException();
 
-            //    _cmsSession.Token = token;
-            //    _cmsSession.UpdatedAt = DateTime.UtcNow;
-            //    _cmsSession.RefreshTokenAt = DateTime.UtcNow;
+            var isValidRefreshToken = await _repositoryManager.AuthenticationManager.VerifyUserTokenAsync(
+               _user,
+               _configurationIdentityProvider.LoginProvider,
+               _configurationIdentityProvider.RefreshTokenProvider,
+               request.RefreshToken
+            );
 
-            //    _axonscmsSessionService.UpdatAxonscmsSession(_cmsSession);
+            if (isValidRefreshToken)
+            {
+                var token = await GenerateToken();
 
-            //    return new AuthResponseDto
-            //    {
-            //        AccessToken = token,
-            //        RefreshToken = await CreateRefreshTokenAsync()
-            //    };
-            //}
+                _session.Token = token;
+                _session.UpdatedAt = DateTime.UtcNow;
+                _session.RefreshTokenAt = DateTime.UtcNow;
 
-            //await _authRepositoryManager.authManager.UpdateSecurityStamp(_user);
+                _repositoryManager.PlanWiseSessionRepository.Update(_session);
 
-            //_axonscmsSessionService.BlockAxonscmsSession(_cmsSession);
 
-            //_authRepositoryManager.Commit();
+                return new AuthResponseDto
+                {
+                    AccessToken = token,
+                    RefreshToken = await CreateRefreshTokenAsync()
+                };
+            }
 
-            //throw new InvalidRefreshTokenException();
+            await _repositoryManager.AuthenticationManager.UpdateSecurityStampAsync(_user);
 
-            throw new NotImplementedException();
+            _planWiseSessionService.BlockPlanWiseSession(_session);
+
+            _repositoryManager.Commit();
+
+            throw new InvalidRefreshTokenException();
         }
 
 
@@ -287,23 +360,27 @@ namespace Service
             var securityKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtConfiguration.SecretKey) //TODO: Get Key from JwtSettings in  applications.json
             );
-
-            Console.WriteLine("Security Key: " + securityKey);
-
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            Console.WriteLine("_user is null: " + _user == null);
-
+            if (_user == null)
+            {
+                throw new InvalidOperationException("User cannot be null when retrieving roles.");
+            }
             var roles = await _repositoryManager.AccountRepository.GetRolesForAccountAsync(_user);
             var roleClaims = roles.Select(x => new Claim(ClaimTypes.Role, x)).ToList();
-            // var userClaims = await _authRepositoryManager.authManager.GetClaimsForAccount(_user);
+            // var userClaims = await _repositoryManager.AccountRepository.GetClaimsForAccount(_user);
+
+            if (_user == null)
+            {
+                throw new InvalidOperationException("User cannot be null when generating token.");
+            }
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, _user.UserName),
+                new Claim(JwtRegisteredClaimNames.Sub, _user.UserName ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, _user.Email),
-                //new Claim("session_id", _Session.SessionId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, _user.Email ?? string.Empty),
+                new Claim("session_id", _session?.SessionId.ToString() ?? string.Empty),
                 new Claim("account_id", _user.Id.ToString()),
             }
             // .Union(userClaims)
@@ -320,8 +397,6 @@ namespace Service
                 ),
                 signingCredentials: credentials
             );
-
-            Console.WriteLine("Token: " + token);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

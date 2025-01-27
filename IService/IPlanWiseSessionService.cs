@@ -15,7 +15,7 @@ namespace IService
             Account account,
             BaseAuthenticationDto clientDetail
         );
-        void UpdatePlanWiseSession(PlanWiseSession planWiseSession);
+        // void UpdatePlanWiseSession(PlanWiseSession planWiseSession);
         void DeletePlanWiseSession(Guid sessionId);
         bool CheckPlanWiseSessionStatus(
             Guid sessionId,
