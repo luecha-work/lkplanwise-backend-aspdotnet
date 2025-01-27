@@ -43,14 +43,14 @@ namespace Service
             UpdatePlanWiseSession(planWiseSession);
         }
 
-        public bool ChackePlanWiseSessionStatus(Guid sessionId, Guid accountId, string reqIpAddess)
+        public bool CheckPlanWiseSessionStatus(Guid sessionId, Guid accountId, string reqIpAddress)
         {
             var session =
                  _repositoryManager.PlanWiseSessionRepository.FindOneById(sessionId);
 
             if (session == null) return false;
 
-            if (session.AccountId != accountId || session.LoginIp != reqIpAddess)
+            if (session.AccountId != accountId || session.LoginIp != reqIpAddress)
             {
                 //TODO: Block Axons Cms Session
                 BlockPlanWiseSession(session);
@@ -130,19 +130,19 @@ namespace Service
 
         public void DeletePlanWiseSession(Guid sessionId)
         {
-            var checkeSession = _repositoryManager.PlanWiseSessionRepository.FindOneById(sessionId);
+            var checkSession = _repositoryManager.PlanWiseSessionRepository.FindOneById(sessionId);
 
-            if (checkeSession != null)
+            if (checkSession != null)
             {
-                _repositoryManager.PlanWiseSessionRepository.Delete(checkeSession);
+                _repositoryManager.PlanWiseSessionRepository.Delete(checkSession);
                 _repositoryManager.Commit();
             }
         }
 
-        public PlanWiseSession GetPlanWiseSessionById(Guid sessionId)
+        public PlanWiseSession? GetPlanWiseSessionById(Guid sessionId)
         {
             var session = _repositoryManager.PlanWiseSessionRepository.FindOneById(sessionId);
-            if (session != null) { 
+            if (session == null) { 
                 throw new Exception("Session not found.");
             }
 

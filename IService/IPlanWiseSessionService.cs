@@ -10,17 +10,17 @@ namespace IService
 {
     public interface IPlanWiseSessionService
     {
-        PlanWiseSession GetPlanWiseSessionById(Guid sessionId);
+        PlanWiseSession? GetPlanWiseSessionById(Guid sessionId);
         PlanWiseSession CreatePlanWiseSession(
             Account account,
             BaseAuthenticationDto clientDetail
         );
         void UpdatePlanWiseSession(PlanWiseSession planWiseSession);
         void DeletePlanWiseSession(Guid sessionId);
-        bool ChackePlanWiseSessionStatus(
+        bool CheckPlanWiseSessionStatus(
             Guid sessionId,
             Guid accountId,
-            string reqIpAddess
+            string reqIpAddress
         );
         void BlockPlanWiseSession(PlanWiseSession planWiseSession);
         void PlanWiseSessionExpired(PlanWiseSession planWiseSession);
