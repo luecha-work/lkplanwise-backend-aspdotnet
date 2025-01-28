@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PlanWiseBackend\PlanWiseBackend.csproj" />
+    <ProjectReference Include="..\PlanWiseBackend\LKPlanWiseBackend.csproj" />
   </ItemGroup>
 
   <ItemGroup>
