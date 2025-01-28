@@ -2,7 +2,7 @@
 using Entities;
 using Entities.ConfigurationModels;
 using Hangfire;
-using Hangfire.SqlServer;
+using Hangfire.PostgreSql;
 using IService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Npgsql;
 using Serilog;
 using Service;
 using System.Text;
@@ -217,7 +218,7 @@ namespace PlanWiseBackend.Extensions
                 .AddTokenProvider<DataProtectorTokenProvider<Account>>(
                     identityConfigure.LoginProvider
                 )
-                .AddEntityFrameworkStores<PlanWiseDbContext>()
+                .AddEntityFrameworkStores<LKPlanWiseDbContext>()
                 .AddDefaultTokenProviders();
 
             //TODO: Config Limit Refresh Token Time
@@ -231,23 +232,28 @@ namespace PlanWiseBackend.Extensions
         public static void ConfigureHangfireJob(
             this IServiceCollection services,
             IConfiguration configuration
-            ){
+            )
+        {
             var connectionStringStorage = configuration.GetSection("HangfireSettings")["ConnectionStringStorage"];
 
-            var storageOptions = new SqlServerStorageOptions
+            var builder = new NpgsqlConnectionStringBuilder(connectionStringStorage);
+
+            var storageOptions = new PostgreSqlStorageOptions
             {
-                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                DistributedLockTimeout = TimeSpan.FromMinutes(1),
                 QueuePollInterval = TimeSpan.FromSeconds(15),
-                UseRecommendedIsolationLevel = true,
-                DisableGlobalLocks = true,
+                JobExpirationCheckInterval = TimeSpan.FromHours(1),
+                CountersAggregateInterval = TimeSpan.FromMinutes(5),
+                UseNativeDatabaseTransactions = true,
                 PrepareSchemaIfNecessary = true,
-                //SchemaName = "dbo"
             };
 
             services.AddHangfire(options =>
             {
-                options.UseSqlServerStorage(connectionStringStorage, storageOptions);
+                options.UsePostgreSqlStorage(
+                    configure => configure.UseNpgsqlConnection(builder.ConnectionString),
+                    storageOptions
+                );
                 options.UseSerializerSettings(
                     new Newtonsoft.Json.JsonSerializerSettings()
                     {

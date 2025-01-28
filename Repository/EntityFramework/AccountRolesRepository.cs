@@ -10,7 +10,7 @@ namespace Repository.EntityFramework
 {
     public class AccountRolesRepository : GenericRepository<AccountRoles>, IAccountRolesRepository
     {
-        public AccountRolesRepository(PlanWiseDbContext context)
+        public AccountRolesRepository(LKPlanWiseDbContext context)
             : base(context) { }
     }
 }

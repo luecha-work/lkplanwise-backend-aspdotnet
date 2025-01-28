@@ -162,10 +162,6 @@
               "target": "Package",
               "version": "[9.0.1, )"
             },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
-              "target": "Package",
-              "version": "[9.0.1, )"
-            },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
@@ -191,6 +187,14 @@
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
               "version": "[9.0.0, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.3, )"
             }
           },
           "imports": [
@@ -457,9 +461,9 @@
               "target": "Package",
               "version": "[7.0.1, )"
             },
-            "Hangfire.SqlServer": {
+            "Hangfire.PostgreSql": {
               "target": "Package",
-              "version": "[1.8.17, )"
+              "version": "[1.20.10, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
@@ -529,9 +533,13 @@
               "target": "Package",
               "version": "[9.0.0, )"
             },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
             "Scalar.AspNetCore": {
               "target": "Package",
-              "version": "[2.0.4, )"
+              "version": "[2.0.5, )"
             },
             "Serilog": {
               "target": "Package",
@@ -545,9 +553,9 @@
               "target": "Package",
               "version": "[5.0.0, )"
             },
-            "Serilog.Sinks.MSSqlServer": {
+            "Serilog.Sinks.PostgreSQL": {
               "target": "Package",
-              "version": "[8.1.0, )"
+              "version": "[2.3.0, )"
             },
             "Serilog.Sinks.Seq": {
               "target": "Package",
@@ -643,13 +651,17 @@
               "target": "Package",
               "version": "[2.1.35, )"
             },
-            "Microsoft.EntityFrameworkCore.SqlServer": {
+            "Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter": {
               "target": "Package",
               "version": "[9.0.1, )"
             },
-            "System.Threading.Tasks": {
+            "Npgsql": {
               "target": "Package",
-              "version": "[4.3.0, )"
+              "version": "[9.0.2, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.3, )"
             }
           },
           "imports": [

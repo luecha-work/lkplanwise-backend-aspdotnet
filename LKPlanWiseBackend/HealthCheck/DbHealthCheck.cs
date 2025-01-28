@@ -1,5 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Npgsql;
 
 namespace PlanWiseBackend.HealthCheck
 {
@@ -21,7 +21,7 @@ namespace PlanWiseBackend.HealthCheck
             {
                 string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
-                using (SqlConnection sqlConnection = new SqlConnection(connectionString))
+                using (NpgsqlConnection sqlConnection = new NpgsqlConnection(connectionString))
                 {
                     if (sqlConnection.State != System.Data.ConnectionState.Open)
                         sqlConnection.Open();

@@ -1,10 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.Configuration;
+using Npgsql;
 using System.Data;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Repository.Dapper
@@ -18,7 +14,7 @@ namespace Repository.Dapper
         public RepositoryManager(IConfiguration configuration)
         {
             string connectionString = configuration.GetConnectionString("DefaultConnection");
-            _connection = new SqlConnection(connectionString);
+            _connection = new NpgsqlConnection(connectionString);
             _connection.Open();
             _transaction = _connection.BeginTransaction();
         }

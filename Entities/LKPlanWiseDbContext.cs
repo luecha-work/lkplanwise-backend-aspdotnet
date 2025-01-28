@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace Entities
 {
-    public class PlanWiseDbContext
+    public class LKPlanWiseDbContext
         : IdentityDbContext<
             Account,
             Roles,
@@ -24,7 +24,7 @@ namespace Entities
             IdentityUserToken<Guid>
         >
     {
-        public PlanWiseDbContext(DbContextOptions<PlanWiseDbContext> options)
+        public LKPlanWiseDbContext(DbContextOptions<LKPlanWiseDbContext> options)
             : base(options) { }
 
         public virtual DbSet<Account> Accounts { get; set; }
@@ -36,16 +36,17 @@ namespace Entities
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            //modelBuilder.ApplyConfiguration(new RoleConfiguration());
+            modelBuilder.HasPostgresExtension("uuid-ossp");
+            // modelBuilder.ApplyConfiguration(new RoleConfiguration());
             //modelBuilder.ApplyConfiguration(new AccountsConfiguration());
-            //modelBuilder.HasDefaultSchema("pims");
+            // modelBuilder.HasDefaultSchema("pims");
 
             #region CustomEntitysIdentity
             modelBuilder.Entity<Account>(entity =>
             {
                 entity.ToTable("Accounts");
 
-                entity.Property(e => e.Id).ValueGeneratedOnAdd().HasDefaultValueSql("NEWID()");
+                entity.Property(e => e.Id).ValueGeneratedOnAdd().HasDefaultValueSql("gen_random_uuid()");
                 entity.Property(e => e.AccessFailedCount).HasColumnName("access_failed_count");
                 entity.Property(e => e.Active).HasColumnName("active");
                 entity.Property(e => e.ConcurrencyStamp).HasColumnName("concurrency_stamp");
@@ -64,9 +65,9 @@ namespace Entities
                 entity.Property(e => e.PasswordHash).HasColumnName("password_hash");
                 entity.Property(e => e.NormalizedEmail).HasColumnName("normalized_email");
                 entity.Property(e => e.EmailConfirmed).HasColumnName("email_confirmed");
-                entity.Property(e => e.NormalizedUserName).HasColumnName("normalized_userName");
+                entity.Property(e => e.NormalizedUserName).HasColumnName("normalized_username");
                 entity.Property(e => e.PhoneNumberConfirmed).HasColumnName("phonenumber_confirmed");
-                entity.Property(e => e.TwoFactorEnabled).HasColumnName("twofactorEnabled");
+                entity.Property(e => e.TwoFactorEnabled).HasColumnName("twofactor_enabled");
                 entity.Property(e => e.PhoneNumber).HasMaxLength(20).HasColumnName("phonenumber");
                 entity
                     .Property(e => e.ProfileImageName)
@@ -90,7 +91,7 @@ namespace Entities
 
                 entity.HasIndex(e => e.NormalizedName, "RoleNameIndex").IsUnique();
 
-                entity.Property(r => r.Id).ValueGeneratedOnAdd().HasDefaultValueSql("NEWID()");
+                entity.Property(r => r.Id).ValueGeneratedOnAdd().HasDefaultValueSql("gen_random_uuid()");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by");
                 entity.Property(e => e.Name).HasColumnName("name").HasMaxLength(255);
@@ -112,11 +113,9 @@ namespace Entities
 
             modelBuilder.Entity<AccountRoles>(entity =>
             {
-                entity.ToTable("AccountsRole");
+                entity.ToTable("AccountRoles");
 
                 entity.HasKey(e => new { e.UserId, e.RoleId });
-
-                entity.ToTable("AccountsRole");
 
                 entity.HasIndex(e => e.RoleId, "IX_Accounts_Roles_role_id");
 
@@ -126,12 +125,10 @@ namespace Entities
                 entity.Property(e => e.CreatedBy).HasColumnName("created_by");
                 entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
                 entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
-
                 entity
                     .HasOne(d => d.Role)
                     .WithMany(p => p.AccountRoles)
                     .HasForeignKey(d => d.RoleId);
-
                 entity
                     .HasOne(d => d.Account)
                     .WithMany(p => p.AccountRoles)
@@ -151,7 +148,7 @@ namespace Entities
                 entity.ToTable("PlanWiseSession");
 
                 entity.Property(e => e.SessionId)
-                    .HasDefaultValueSql("(newid())")
+                    .HasDefaultValueSql("gen_random_uuid()")
                     .HasColumnName("session_id");
                 entity.Property(e => e.AccountId).HasColumnName("account_id");
                 entity.Property(e => e.Browser)
@@ -180,17 +177,17 @@ namespace Entities
                     .HasColumnName("session_status");
                 entity.Property(e => e.Token).HasColumnName("token");
                 entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
-                entity.Property(e => e.UpdatedBy).HasColumnName("updated_By");
+                entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
             });
 
             modelBuilder.Entity<BlockBruteForce>(entity =>
             {
                 entity.HasKey(e => e.BlockForceId).HasName("block_bruteforce_pk");
 
-                entity.ToTable("Block_BruteForce");
+                entity.ToTable("BlockBruteForce");
 
                 entity.Property(e => e.BlockForceId)
-                    .HasDefaultValueSql("(newid())")
+                    .HasDefaultValueSql("gen_random_uuid()")
                     .HasColumnName("blockforce_id");
                 entity.Property(e => e.Count).HasColumnName("count");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
@@ -206,25 +203,25 @@ namespace Entities
                     .HasComment("L (Locked): ถูกล็อก\r\nU (UnLock): ไม่ล็อก")
                     .HasColumnName("status");
                 entity.Property(e => e.UnLockTime).HasColumnName("unlock_time");
-                entity.Property(e => e.UpdatedAt).HasColumnName("update_at");
-                entity.Property(e => e.UpdatedBy).HasColumnName("update_by");
+                entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+                entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
             });
         }
     }
 
-    public class CMSDevDbContextFactory : IDesignTimeDbContextFactory<PlanWiseDbContext>
+    public class CMSDevDbContextFactory : IDesignTimeDbContextFactory<LKPlanWiseDbContext>
     {
-        public PlanWiseDbContext CreateDbContext(string[] args)
+        public LKPlanWiseDbContext CreateDbContext(string[] args)
         {
             IConfiguration config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            var optionsBuilder = new DbContextOptionsBuilder<PlanWiseDbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<LKPlanWiseDbContext>();
             var conn = config.GetConnectionString("DefaultConnection");
-            optionsBuilder.UseSqlServer(conn);
-            return new PlanWiseDbContext(optionsBuilder.Options);
+            optionsBuilder.UseNpgsql(conn);
+            return new LKPlanWiseDbContext(optionsBuilder.Options);
         }
     }
 }

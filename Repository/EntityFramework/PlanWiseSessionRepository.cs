@@ -10,11 +10,11 @@ using IRepository;
 
 namespace Repository.EntityFramework
 {
-    public class PlanWiseSessionRepository: GenericRepository<PlanWiseSession>, IPlanWiseSessionRepository
+    public class PlanWiseSessionRepository : GenericRepository<PlanWiseSession>, IPlanWiseSessionRepository
     {
-        private readonly PlanWiseDbContext _context;
+        private readonly LKPlanWiseDbContext _context;
 
-        public PlanWiseSessionRepository(PlanWiseDbContext context) : base(context)
+        public PlanWiseSessionRepository(LKPlanWiseDbContext context) : base(context)
         {
             _context = context;
         }

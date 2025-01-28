@@ -19,10 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<PlanWiseDbContext>(
+builder.Services.AddDbContext<LKPlanWiseDbContext>(
     options =>
     {
-        options.UseSqlServer(connectionString);
+        options.UseNpgsql(connectionString);
     },
     ServiceLifetime.Scoped,
     ServiceLifetime.Singleton

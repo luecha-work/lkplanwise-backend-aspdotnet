@@ -8,9 +8,9 @@ namespace Repository.EntityFramework
     public class GenericRepository<T> : IGenericRepositoryEntityFramework<T>
         where T : class
     {
-        private readonly PlanWiseDbContext _context;
+        private readonly LKPlanWiseDbContext _context;
 
-        public GenericRepository(PlanWiseDbContext context)
+        public GenericRepository(LKPlanWiseDbContext context)
         {
             _context = context;
         }

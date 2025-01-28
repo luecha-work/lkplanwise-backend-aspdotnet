@@ -1,8 +1,8 @@
 ﻿using Hangfire;
-using Hangfire.SqlServer;
+using Hangfire.PostgreSql;
 using HangfireBasicAuthenticationFilter;
-using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
+using Npgsql;
 
 namespace PlanWiseBackend.Extensions
 {
@@ -22,11 +22,11 @@ namespace PlanWiseBackend.Extensions
                     var connectionStringStorage = configuration.GetSection("HangfireSettings")[
                         "ConnectionStringStorage"
                     ];
-                    var builder = new SqlConnectionStringBuilder(connectionStringStorage);
+                    var builder = new NpgsqlConnectionStringBuilder(connectionStringStorage);
 
-                    var storageOptions = new SqlServerStorageOptions
+                    var storageOptions = new PostgreSqlStorageOptions
                     {
-                        //DistributedLockTimeout = TimeSpan.FromMinutes(1),
+                        DistributedLockTimeout = TimeSpan.FromMinutes(1),
                         QueuePollInterval = TimeSpan.FromSeconds(15),
                         JobExpirationCheckInterval = TimeSpan.FromHours(1),
                         CountersAggregateInterval = TimeSpan.FromMinutes(5),
@@ -53,10 +53,10 @@ namespace PlanWiseBackend.Extensions
                         }
                     );
 
-                    GlobalConfiguration.Configuration.UseSqlServerStorage(
-                       builder.ConnectionString,
-                       storageOptions
-                   );
+                    GlobalConfiguration.Configuration.UsePostgreSqlStorage(
+                        configure => configure.UseNpgsqlConnection(builder.ConnectionString),
+                        storageOptions
+                    );
 
                     GlobalConfiguration.Configuration.UseSerializerSettings(
                         new Newtonsoft.Json.JsonSerializerSettings()

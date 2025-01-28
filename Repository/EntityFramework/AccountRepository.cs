@@ -12,12 +12,12 @@ namespace Repository.EntityFramework
 {
     public class AccountRepository : GenericRepository<Account>, IAccountsRepository
     {
-        private readonly PlanWiseDbContext _context;
+        private readonly LKPlanWiseDbContext _context;
         private readonly UserManager<Account> _userManager;
         private readonly RoleManager<Roles> _roleManager;
 
         public AccountRepository(
-            PlanWiseDbContext context,
+            LKPlanWiseDbContext context,
             UserManager<Account> userManager,
             RoleManager<Roles> roleManager
             ) : base(context)

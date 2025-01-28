@@ -13,7 +13,7 @@ namespace Repository.EntityFramework
     {
         private readonly RoleManager<Roles> _roleManager;
 
-        public RoleRepository(PlanWiseDbContext context, RoleManager<Roles> roleManager)
+        public RoleRepository(LKPlanWiseDbContext context, RoleManager<Roles> roleManager)
             : base(context)
         {
             _roleManager = roleManager;
@@ -21,7 +21,7 @@ namespace Repository.EntityFramework
 
         public async Task<Roles?> FindByRoleNameAsync(string roleName)
         {
-           var role = await  _roleManager.FindByNameAsync(roleName);
+            var role = await _roleManager.FindByNameAsync(roleName);
             return role;
         }
     }

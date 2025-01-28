@@ -1,10 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Entities.Configuration
 {
@@ -15,20 +11,22 @@ namespace Entities.Configuration
             builder.HasData(
                 new Roles
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("12345678-1234-1234-1234-123456789012"),
+                    RoleCode = "R-001",
                     Name = "Administrator",
                     NormalizedName = "ADMINISTRATOR",
-                    CreatedAt = new DateTime(2023, 1, 1),
+                    CreatedAt = DateTime.UtcNow,
                     UpdatedAt = null,
                     CreatedBy = "Configure",
                     UpdatedBy = null
                 },
                 new Roles
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("22345678-1234-1234-1234-123456789012"),
+                    RoleCode = "R-002",
                     Name = "User",
                     NormalizedName = "USER",
-                    CreatedAt = new DateTime(2023, 1, 1),
+                    CreatedAt = DateTime.UtcNow,
                     UpdatedAt = null,
                     CreatedBy = "Configure",
                     UpdatedBy = null

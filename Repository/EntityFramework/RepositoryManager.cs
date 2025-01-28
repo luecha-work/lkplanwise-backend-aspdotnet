@@ -13,7 +13,7 @@ namespace Repository.EntityFramework
 {
     public class RepositoryManager : IRepositoryManager
     {
-        private readonly PlanWiseDbContext _context;
+        private readonly LKPlanWiseDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly Lazy<IAccountsRepository> _accountRepository;
@@ -24,7 +24,7 @@ namespace Repository.EntityFramework
         private readonly Lazy<IBlockBruteForceRepository> _blockBruteForceRepository;
 
         public RepositoryManager(
-            PlanWiseDbContext context,
+            LKPlanWiseDbContext context,
             UserManager<Account> userManager,
             RoleManager<Roles> roleManager,
             IHttpContextAccessor httpContextAccessor

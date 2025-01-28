@@ -12,9 +12,9 @@ namespace Repository.EntityFramework
     public class BlockBruteForceRepository : GenericRepository<BlockBruteForce>,
             IBlockBruteForceRepository
     {
-        private readonly PlanWiseDbContext _context;
+        private readonly LKPlanWiseDbContext _context;
 
-        public BlockBruteForceRepository(PlanWiseDbContext context)
+        public BlockBruteForceRepository(LKPlanWiseDbContext context)
            : base(context)
         {
             _context = context;
