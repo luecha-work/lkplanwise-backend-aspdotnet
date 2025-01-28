@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Entities.Migrations
 {
     [DbContext(typeof(LKPlanWiseDbContext))]
-    [Migration("20250128111953_AddBaseTable")]
-    partial class AddBaseTable
+    [Migration("20250128115242_AddBaseEntityForAuthen")]
+    partial class AddBaseEntityForAuthen
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
