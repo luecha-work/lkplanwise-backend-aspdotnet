@@ -1,7 +1,7 @@
 .vs/
 
 # Bin and Obj folders
-# obj/
+obj/
 LKPlanWiseBackend/bin/
 LKPlanWiseBackend/obj/
 Controllers/bin/
