@@ -162,7 +162,7 @@ app.UseIpRateLimiting();
 app.UseCors("CorsPolicy");
 
 //app.UseMiddleware<JwtUserProviderMiddleware>();
-//app.UseMiddleware<SurveyAxonsCmsSessionMiddleware>();
+app.UseMiddleware<SurveySystemSessionMiddleware>();
 
 app.MapHealthChecks(
     "/healthcheck",

@@ -6,12 +6,12 @@ using Shared.Utils;
 
 namespace PlanWiseBackend.Middleware
 {
-    public class SurveyAxonsCmsSessionMiddleware
+    public class SurveySystemSessionMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly JwtConfiguration _jwtConfiguration;
 
-        public SurveyAxonsCmsSessionMiddleware(
+        public SurveySystemSessionMiddleware(
             RequestDelegate next,
             IOptions<JwtConfiguration> configurationJWT
         )
@@ -80,7 +80,7 @@ namespace PlanWiseBackend.Middleware
                                accountId
                            );
 
-                        Console.WriteLine("UserProvider: " + userProvider);
+                        // Console.WriteLine("UserProvider: " + userProvider);
 
                         context.Items["userProvider"] = userProvider;
                     }
