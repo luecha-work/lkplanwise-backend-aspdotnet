@@ -15,7 +15,7 @@ mssql:
 	docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=P@ssw0rd123" -p 1433:1433 --name planwise-ms-container --hostname planwise-ms-container -d mcr.microsoft.com/mssql/server:2022-latest
 
 postgres_createdb:
-	docker exec -it planwise-pg-container createdb --username=planwiseroot --owner=planwiseroot planwisedb
+	docker exec -it exemple-pg-container createdb --username=root --owner=root exemple_dotnet_db
 
 mssql_exec_container:
 	docker exec -it planwise-container "bash"

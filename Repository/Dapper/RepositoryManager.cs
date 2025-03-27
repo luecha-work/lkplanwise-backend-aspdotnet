@@ -13,7 +13,9 @@ namespace Repository.Dapper
 
         public RepositoryManager(IConfiguration configuration)
         {
-            string connectionString = configuration.GetConnectionString("DefaultConnection");
+            string? connectionString = configuration.GetConnectionString("DefaultConnection");
+            if (connectionString == null)
+                throw new ArgumentException("Connection string 'DefaultConnection' not found.");
             _connection = new NpgsqlConnection(connectionString);
             _connection.Open();
             _transaction = _connection.BeginTransaction();
